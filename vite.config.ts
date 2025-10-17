@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-      imports: ['vue', 'vue-router', 'pinia'],
+      imports: ['vue', 'vue-router', 'pinia', 'vue-i18n'],
       dts: 'src/auto-imports.d.ts',
       eslintrc: {
         enabled: true

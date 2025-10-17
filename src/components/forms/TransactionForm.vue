@@ -25,6 +25,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
+const { t } = useI18n()
 const categoriesStore = useCategoriesStore()
 
 // Initialize categories
@@ -119,7 +120,7 @@ function handleCancel() {
     <!-- Transaction Type -->
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">
-        Type <span class="text-red-500">*</span>
+        {{ t('forms.transaction.type') }} <span class="text-red-500">*</span>
       </label>
       <div class="flex gap-4">
         <label class="flex items-center cursor-pointer">
@@ -129,7 +130,7 @@ function handleCancel() {
             value="income"
             class="mr-2 text-primary-600 focus:ring-primary-500"
           />
-          <span class="text-sm">Income</span>
+          <span class="text-sm">{{ t('forms.transaction.income') }}</span>
         </label>
         <label class="flex items-center cursor-pointer">
           <input
@@ -138,7 +139,7 @@ function handleCancel() {
             value="expense"
             class="mr-2 text-primary-600 focus:ring-primary-500"
           />
-          <span class="text-sm">Expense</span>
+          <span class="text-sm">{{ t('forms.transaction.expense') }}</span>
         </label>
       </div>
     </div>
@@ -146,7 +147,7 @@ function handleCancel() {
     <!-- Category Selection -->
     <div>
       <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
-        Category <span class="text-red-500">*</span>
+        {{ t('forms.transaction.category') }} <span class="text-red-500">*</span>
       </label>
       <select
         id="category"
@@ -155,7 +156,7 @@ function handleCancel() {
         :class="{ 'border-red-500': errors.category_id }"
         required
       >
-        <option value="" disabled>Select a category</option>
+        <option value="" disabled>{{ t('forms.transaction.categoryPlaceholder') }}</option>
         <option
           v-for="category in availableCategories"
           :key="category.id"
@@ -175,7 +176,7 @@ function handleCancel() {
     <!-- Amount -->
     <div>
       <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
-        Amount <span class="text-red-500">*</span>
+        {{ t('forms.transaction.amount') }} <span class="text-red-500">*</span>
       </label>
       <div class="relative">
         <span
@@ -191,7 +192,7 @@ function handleCancel() {
           min="0"
           class="input w-full pl-8"
           :class="{ 'border-red-500': errors.amount }"
-          placeholder="0.00"
+          :placeholder="t('forms.transaction.amountPlaceholder')"
           required
         />
       </div>
@@ -199,32 +200,24 @@ function handleCancel() {
     </div>
 
     <!-- Date -->
-    <div>
-      <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
-        Date <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="date"
-        v-model="formData.date"
-        type="date"
-        class="input w-full"
-        :class="{ 'border-red-500': errors.date }"
-        required
-      />
-      <p v-if="errors.date" class="mt-1 text-sm text-red-600">{{ errors.date }}</p>
-    </div>
+    <DatePicker
+      v-model="formData.date"
+      :label="t('forms.transaction.date')"
+      :required="true"
+      :error="errors.date"
+    />
 
     <!-- Description (Optional) -->
     <div>
       <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-        Description (Optional)
+        {{ t('forms.transaction.description') }}
       </label>
       <textarea
         id="description"
         v-model="formData.description"
         rows="3"
         class="input w-full resize-none"
-        placeholder="Add any notes about this transaction..."
+        :placeholder="t('forms.transaction.descriptionPlaceholder')"
       ></textarea>
     </div>
 
@@ -234,7 +227,7 @@ function handleCancel() {
         {{ submitLabel }}
       </button>
       <button type="button" @click="handleCancel" class="btn btn-secondary flex-1">
-        Cancel
+        {{ t('common.cancel') }}
       </button>
     </div>
   </form>

@@ -12,6 +12,7 @@ import type { TransactionWithCategory } from '@/stores/transactions'
 
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 
+const { t } = useI18n()
 const transactionsStore = useTransactionsStore()
 
 // Modal state
@@ -88,44 +89,42 @@ async function handleDelete() {
 
 // Modal title
 const modalTitle = computed(() => {
-  return editingTransaction.value ? 'Edit Transaction' : 'Add Transaction'
+  return editingTransaction.value ? t('transactions.editTransaction') : t('transactions.addTransaction')
 })
 
 const submitLabel = computed(() => {
-  return editingTransaction.value ? 'Update' : 'Create'
+  return editingTransaction.value ? t('common.update') : t('common.create')
 })
 
 // Get transaction type badge color
 function getTypeBadgeColor(type: 'income' | 'expense'): string {
   return type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
 }
-
-const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to get started!'
 </script>
 
 <template>
   <AppLayout>
     <PageHeader
-      title="Transactions"
-      subtitle="Manage your income and expenses"
-      action-label="Add Transaction"
+      :title="t('transactions.title')"
+      :subtitle="t('transactions.subtitle')"
+      :action-label="t('transactions.addTransaction')"
       @action="handleAddTransaction"
     />
 
     <!-- Summary Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <StatCard
-        label="Total Income"
+        :label="t('transactions.totalIncome')"
         :value="formatCurrency(transactionsStore.totalIncome)"
         color="green"
       />
       <StatCard
-        label="Total Expenses"
+        :label="t('transactions.totalExpenses')"
         :value="formatCurrency(transactionsStore.totalExpenses)"
         color="red"
       />
       <StatCard
-        label="Balance"
+        :label="t('transactions.balance')"
         :value="formatCurrency(transactionsStore.balance)"
         :color="transactionsStore.balance >= 0 ? 'green' : 'red'"
       />
@@ -143,7 +142,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
               : 'border-transparent text-gray-600 hover:text-gray-900',
           ]"
         >
-          All Transactions
+          {{ t('transactions.allTransactions') }}
         </button>
         <button
           @click="filterType = 'income'"
@@ -154,7 +153,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
               : 'border-transparent text-gray-600 hover:text-gray-900',
           ]"
         >
-          Income
+          {{ t('transactions.income') }}
         </button>
         <button
           @click="filterType = 'expense'"
@@ -165,14 +164,14 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
               : 'border-transparent text-gray-600 hover:text-gray-900',
           ]"
         >
-          Expenses
+          {{ t('transactions.expenses') }}
         </button>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="transactionsStore.loading" class="text-center py-12">
-      <p class="text-gray-500">Loading transactions...</p>
+      <p class="text-gray-500">{{ t('transactions.loadingTransactions') }}</p>
     </div>
 
     <!-- Error State -->
@@ -187,7 +186,11 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
     <EmptyState
       v-else-if="filteredTransactions.length === 0"
       :message="
-        filterType === 'all' ? noTransactionInfoText : `No ${filterType} transactions found.`
+        filterType === 'all'
+          ? t('transactions.noTransactions')
+          : filterType === 'income'
+            ? t('transactions.noIncomeTransactions')
+            : t('transactions.noExpenseTransactions')
       "
     />
 
@@ -197,12 +200,12 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
         <table class="w-full">
           <thead>
             <tr class="border-b">
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">Date</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">Category</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">Description</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">Type</th>
-              <th class="text-right py-3 px-4 font-semibold text-gray-900">Amount</th>
-              <th class="text-right py-3 px-4 font-semibold text-gray-900">Actions</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.date') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.category') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.description') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.type') }}</th>
+              <th class="text-right py-3 px-4 font-semibold text-gray-900">{{ t('transactions.amount') }}</th>
+              <th class="text-right py-3 px-4 font-semibold text-gray-900">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -230,7 +233,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
                     }}
                   </div>
                   <span class="text-gray-900">
-                    {{ transaction.categories?.name || 'Uncategorized' }}
+                    {{ transaction.categories?.name || t('common.uncategorized') }}
                   </span>
                 </div>
               </td>
@@ -248,7 +251,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
                     getTypeBadgeColor(transaction.type),
                   ]"
                 >
-                  {{ transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) }}
+                  {{ transaction.type === 'income' ? t('forms.transaction.income') : t('forms.transaction.expense') }}
                 </span>
               </td>
 
@@ -267,7 +270,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
                   <button
                     @click="handleEditTransaction(transaction)"
                     class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
-                    aria-label="Edit transaction"
+                    :aria-label="t('transactions.editAriaLabel')"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -281,7 +284,7 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
                   <button
                     @click="confirmDelete(transaction)"
                     class="p-2 text-gray-600 hover:text-red-600 transition-colors"
-                    aria-label="Delete transaction"
+                    :aria-label="t('transactions.deleteAriaLabel')"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -321,25 +324,25 @@ const noTransactionInfoText = 'No transactions yet. Click "Add Transaction" to g
     </Modal>
 
     <!-- Delete Confirmation Modal -->
-    <Modal v-model="showDeleteConfirm" title="Delete Transaction" max-width="max-w-sm">
+    <Modal v-model="showDeleteConfirm" :title="t('transactions.deleteTitle')" max-width="max-w-sm">
       <div class="space-y-4">
         <p class="text-gray-700">
-          Are you sure you want to delete this transaction? This action cannot be undone.
+          {{ t('transactions.deleteConfirmation') }}
         </p>
         <div v-if="transactionToDelete" class="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
           <p>
-            <strong>Amount:</strong>
+            <strong>{{ t('transactions.amount') }}:</strong>
             {{ formatCurrency(transactionToDelete.amount) }}
           </p>
           <p>
-            <strong>Category:</strong>
-            {{ transactionToDelete.categories?.name || 'Uncategorized' }}
+            <strong>{{ t('transactions.category') }}:</strong>
+            {{ transactionToDelete.categories?.name || t('common.uncategorized') }}
           </p>
-          <p><strong>Date:</strong> {{ formatDate(transactionToDelete.date) }}</p>
+          <p><strong>{{ t('transactions.date') }}:</strong> {{ formatDate(transactionToDelete.date) }}</p>
         </div>
         <div class="flex gap-3 pt-2">
-          <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">Delete</button>
-          <button @click="cancelDelete" class="btn btn-secondary flex-1">Cancel</button>
+          <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">{{ t('common.delete') }}</button>
+          <button @click="cancelDelete" class="btn btn-secondary flex-1">{{ t('common.cancel') }}</button>
         </div>
       </div>
     </Modal>

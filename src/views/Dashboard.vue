@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
 import currency from 'currency.js'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const transactionsStore = useTransactionsStore()
 
@@ -62,40 +63,40 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
 <template>
   <AppLayout>
     <PageHeader
-      title="Dashboard"
-      :subtitle="`Welcome back, ${authStore.user?.email}`"
+      :title="t('dashboard.title')"
+      :subtitle="`${t('dashboard.welcomeBack')}, ${authStore.user?.email}`"
     />
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <StatCard
-        label="Total Balance"
+        :label="t('dashboard.totalBalance')"
         :value="formatCurrency(totalBalance)"
         :color="totalBalance >= 0 ? 'green' : 'red'"
       />
       <StatCard
-        label="This Month Income"
+        :label="t('dashboard.thisMonthIncome')"
         :value="formatCurrency(currentMonthIncome)"
         color="green"
       />
       <StatCard
-        label="This Month Expenses"
+        :label="t('dashboard.thisMonthExpenses')"
         :value="formatCurrency(currentMonthExpenses)"
         color="red"
       />
     </div>
 
     <div class="card">
-      <h3 class="text-lg font-semibold mb-4">Recent Transactions</h3>
+      <h3 class="text-lg font-semibold mb-4">{{ t('dashboard.recentTransactions') }}</h3>
 
       <!-- Loading State -->
       <div v-if="transactionsStore.loading" class="text-center py-8">
-        <p class="text-gray-500">Loading transactions...</p>
+        <p class="text-gray-500">{{ t('dashboard.loadingTransactions') }}</p>
       </div>
 
       <!-- Empty State -->
       <EmptyState
         v-else-if="recentTransactions.length === 0"
-        message="No transactions yet. Start by adding your first transaction!"
+        :message="t('dashboard.noTransactions')"
       />
 
       <!-- Recent Transactions List -->
@@ -121,10 +122,10 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
             <!-- Transaction Details -->
             <div class="flex-1 min-w-0">
               <p class="font-medium text-gray-900">
-                {{ transaction.categories?.name || 'Uncategorized' }}
+                {{ transaction.categories?.name || t('common.uncategorized') }}
               </p>
               <p class="text-sm text-gray-500 truncate">
-                {{ transaction.description || 'No description' }}
+                {{ transaction.description || t('common.noDescription') }}
               </p>
             </div>
 
@@ -137,7 +138,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                   getTypeBadgeColor(transaction.type)
                 ]"
               >
-                {{ transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) }}
+                {{ transaction.type === 'income' ? t('forms.transaction.income') : t('forms.transaction.expense') }}
               </span>
             </div>
           </div>
@@ -158,7 +159,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
             to="/transactions"
             class="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center justify-center gap-1"
           >
-            View all transactions
+            {{ t('dashboard.viewAllTransactions') }}
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"

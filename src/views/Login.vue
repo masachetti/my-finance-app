@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -29,13 +30,13 @@ async function handleLogin() {
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="card max-w-md w-full">
-      <h1 class="text-2xl font-bold text-center mb-6">My Finance App</h1>
-      <p class="text-gray-600 text-center mb-8">Sign in to manage your finances</p>
+      <h1 class="text-2xl font-bold text-center mb-6">{{ t('auth.login.title') }}</h1>
+      <p class="text-gray-600 text-center mb-8">{{ t('auth.login.subtitle') }}</p>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-            Email
+            {{ t('auth.login.email') }}
           </label>
           <input
             id="email"
@@ -43,13 +44,13 @@ async function handleLogin() {
             type="email"
             required
             class="input"
-            placeholder="your@email.com"
+            :placeholder="t('auth.login.emailPlaceholder')"
           />
         </div>
 
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-            Password
+            {{ t('auth.login.password') }}
           </label>
           <input
             id="password"
@@ -57,7 +58,7 @@ async function handleLogin() {
             type="password"
             required
             class="input"
-            placeholder="••••••••"
+            :placeholder="t('auth.login.passwordPlaceholder')"
           />
         </div>
 
@@ -70,7 +71,7 @@ async function handleLogin() {
           :disabled="loading"
           class="btn btn-primary w-full"
         >
-          {{ loading ? 'Loading...' : 'Sign In' }}
+          {{ loading ? t('auth.login.loading') : t('auth.login.signIn') }}
         </button>
       </form>
     </div>

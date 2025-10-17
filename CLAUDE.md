@@ -339,3 +339,6 @@ onUnmounted(() => {
 - **Use the AppLayout pattern** for all authenticated pages
 - **Update schema documentation** (`docs/supabase-schema.md`) when modifying database structure
 - **Maintain RLS policies** on all tables with `user_id` filtering for security
+- Do not co-author claude on commits
+- Use R$ for money
+- Use pt-BR locale for dates

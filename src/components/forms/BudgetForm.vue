@@ -140,7 +140,7 @@ function handleCancel() {
         <span
           class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"
         >
-          $
+          R$
         </span>
         <input
           id="amount"
@@ -161,20 +161,13 @@ function handleCancel() {
     </div>
 
     <!-- Month Selection -->
-    <div>
-      <label for="month" class="block text-sm font-medium text-gray-700 mb-1">
-        Month <span class="text-red-500">*</span>
-      </label>
-      <input
-        id="month"
-        v-model="formData.month"
-        type="month"
-        class="input w-full"
-        :class="{ 'border-red-500': errors.month }"
-        required
-      />
-      <p v-if="errors.month" class="mt-1 text-sm text-red-600">{{ errors.month }}</p>
-    </div>
+    <DatePicker
+      v-model="formData.month"
+      label="Month"
+      :required="true"
+      :error="errors.month"
+      :month-picker="true"
+    />
 
     <!-- Form Actions -->
     <div class="flex gap-3 pt-4">
