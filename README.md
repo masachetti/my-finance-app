@@ -116,7 +116,41 @@ See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for the complete schema including:
 
 ## Deployment
 
-### Vercel (Recommended)
+### GitHub Pages (Automatic)
+
+This project is configured to automatically deploy to GitHub Pages on every push to the `main` branch.
+
+**Setup Steps:**
+
+1. **Push your code to GitHub** (if not already done)
+   ```bash
+   git add .
+   git commit -m "Configure GitHub Pages deployment"
+   git push origin main
+   ```
+
+2. **Configure GitHub Secrets:**
+   - Go to your repository on GitHub
+   - Navigate to Settings → Secrets and variables → Actions
+   - Add the following secrets:
+     - `VITE_SUPABASE_URL` - Your Supabase project URL
+     - `VITE_SUPABASE_ANON_KEY` - Your Supabase anon key
+
+3. **Enable GitHub Pages:**
+   - Go to Settings → Pages
+   - Under "Build and deployment"
+   - Set Source to **GitHub Actions**
+
+4. **Wait for deployment** - The workflow will automatically trigger and deploy your app
+
+**Your app will be live at:** `https://masachetti.github.io/my-finance-app/`
+
+The deployment workflow (`.github/workflows/deploy.yml`) will:
+- Build the app with type checking
+- Run on every push to main branch
+- Automatically deploy to GitHub Pages
+
+### Vercel (Alternative)
 
 1. Push your code to GitHub
 2. Import project in [Vercel](https://vercel.com)
@@ -125,7 +159,7 @@ See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for the complete schema including:
    - `VITE_SUPABASE_ANON_KEY`
 4. Deploy!
 
-### Netlify
+### Netlify (Alternative)
 
 1. Push your code to GitHub
 2. Import project in [Netlify](https://netlify.com)
