@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Database } from '@/types/database'
+import EmojiPicker from '@/components/common/EmojiPicker.vue'
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert']
 
@@ -175,14 +176,8 @@ function handleCancel() {
       <label for="icon" class="block text-sm font-medium text-gray-700 mb-1">
         Icon (Optional)
       </label>
-      <input
-        id="icon"
-        v-model="formData.icon"
-        type="text"
-        class="input w-full"
-        placeholder="e.g., 🏠, 💼, 🍕"
-      />
-      <p class="mt-1 text-xs text-gray-500">Enter an emoji or icon identifier</p>
+      <EmojiPicker v-model="formData.icon" />
+      <p class="mt-1 text-xs text-gray-500">Select an emoji for this category</p>
     </div>
 
     <!-- Form Actions -->

@@ -6,8 +6,7 @@ import Modal from '@/components/common/Modal.vue'
 import TransactionForm from '@/components/forms/TransactionForm.vue'
 import StatCard from '@/components/common/StatCard.vue'
 import { useTransactionsStore } from '@/stores/transactions'
-import { format } from 'date-fns'
-import currency from 'currency.js'
+import { formatCurrency, formatDate } from '@/utils/formatters'
 import type { Database } from '@/types/database'
 import type { TransactionWithCategory } from '@/stores/transactions'
 
@@ -95,16 +94,6 @@ const modalTitle = computed(() => {
 const submitLabel = computed(() => {
   return editingTransaction.value ? 'Update' : 'Create'
 })
-
-// Format currency
-function formatCurrency(amount: number): string {
-  return currency(amount, { symbol: '$', precision: 2 }).format()
-}
-
-// Format date
-function formatDate(dateString: string): string {
-  return format(new Date(dateString), 'MMM dd, yyyy')
-}
 
 // Get transaction type badge color
 function getTypeBadgeColor(type: 'income' | 'expense'): string {

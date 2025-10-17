@@ -7,8 +7,7 @@ import BudgetForm from '@/components/forms/BudgetForm.vue'
 import StatCard from '@/components/common/StatCard.vue'
 import { useBudgetsStore } from '@/stores/budgets'
 import { useTransactionsStore } from '@/stores/transactions'
-import { format } from 'date-fns'
-import currency from 'currency.js'
+import { formatCurrency, formatMonth } from '@/utils/formatters'
 import type { Database } from '@/types/database'
 import type { BudgetWithDetails } from '@/stores/budgets'
 
@@ -106,18 +105,6 @@ const modalTitle = computed(() => {
 const submitLabel = computed(() => {
   return editingBudget.value ? 'Update' : 'Create'
 })
-
-// Format currency
-function formatCurrency(amount: number): string {
-  return currency(amount, { symbol: '$', precision: 2 }).format()
-}
-
-// Format month
-function formatMonth(monthString: string): string {
-  const [year, month] = monthString.split('-')
-  const date = new Date(parseInt(year), parseInt(month) - 1, 1)
-  return format(date, 'MMMM yyyy')
-}
 
 // Get progress bar color based on percentage
 function getProgressBarColor(percentage: number): string {

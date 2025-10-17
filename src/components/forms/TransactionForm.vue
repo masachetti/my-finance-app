@@ -181,7 +181,7 @@ function handleCancel() {
         <span
           class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"
         >
-          $
+          R$
         </span>
         <input
           id="amount"
