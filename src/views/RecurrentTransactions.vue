@@ -136,7 +136,7 @@ function handleCancel() {
     />
 
     <!-- Recurrent Transactions List -->
-    <div v-else-if="!showForm" class="space-y-4">
+    <div v-else-if="!showForm" class="space-y-3 sm:space-y-4">
       <RecurrentTransactionCard
         v-for="recurrence in recurrentTransactions"
         :key="recurrence.id"

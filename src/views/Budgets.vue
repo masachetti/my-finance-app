@@ -211,23 +211,23 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
     <EmptyState v-else-if="budgetsStore.budgets.length === 0" :message="t('budgets.noBudgets')" />
 
     <!-- Budgets List -->
-    <div v-else class="space-y-4">
+    <div v-else class="space-y-3 sm:space-y-4">
       <div
         v-for="budget in budgetsStore.budgets"
         :key="budget.id"
         class="card hover:shadow-lg transition-shadow"
       >
-        <div class="flex items-start justify-between mb-4">
-          <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0 mb-4">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
             <div
               v-if="budget.categories"
-              class="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-semibold"
+              class="w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white text-lg font-semibold"
               :style="{ backgroundColor: budget.categories.color }"
             >
               {{ budget.categories.icon || budget.categories.name.charAt(0).toUpperCase() }}
             </div>
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">
                 {{ budget.categories?.name || t('budgets.unknownCategory') }}
               </h3>
               <span
@@ -241,13 +241,13 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 self-end sm:self-auto">
             <button
               @click="handleEditBudget(budget)"
-              class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
+              class="p-2 sm:p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-100"
               :aria-label="t('budgets.editBudgetAriaLabel')"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -258,10 +258,10 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
             </button>
             <button
               @click="confirmDelete(budget)"
-              class="p-2 text-gray-600 hover:text-red-600 transition-colors"
+              class="p-2 sm:p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-gray-100"
               :aria-label="t('budgets.deleteBudgetAriaLabel')"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -275,11 +275,11 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
 
         <!-- Progress Bar -->
         <div class="mb-3">
-          <div class="flex justify-between text-sm mb-2">
-            <span class="text-gray-600">
+          <div class="flex justify-between text-sm mb-2 gap-2">
+            <span class="text-gray-600 truncate">
               {{ formatCurrency(budget.spent) }} {{ t('budgets.spentLabel') }}
             </span>
-            <span class="text-gray-600">
+            <span class="text-gray-600 whitespace-nowrap">
               {{ formatCurrency(budget.amount) }} {{ t('budgets.limitLabel') }}
             </span>
           </div>
@@ -292,15 +292,15 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
               :style="{ width: `${Math.min(budget.percentage, 100)}%` }"
             ></div>
           </div>
-          <div class="flex justify-between text-sm mt-2">
+          <div class="flex justify-between text-sm mt-2 gap-2">
             <span
-              class="font-semibold"
+              class="font-semibold truncate"
               :class="budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'"
             >
               {{ formatCurrency(Math.abs(budget.remaining)) }}
               {{ budget.remaining >= 0 ? t('budgets.remainingLabel') : t('budgets.overLabel') }}
             </span>
-            <span class="text-gray-600 font-medium"> {{ Math.round(budget.percentage) }}% </span>
+            <span class="text-gray-600 font-medium whitespace-nowrap"> {{ Math.round(budget.percentage) }}% </span>
           </div>
         </div>
       </div>

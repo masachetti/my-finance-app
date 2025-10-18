@@ -15,7 +15,7 @@ const colorClasses = {
 <template>
   <div class="card">
     <h3 class="text-sm font-medium text-gray-500">{{ label }}</h3>
-    <p :class="['text-3xl font-bold mt-2', colorClasses[valueColor || 'default']]">
+    <p :class="['text-2xl sm:text-3xl font-bold mt-2', colorClasses[valueColor || 'default']]">
       {{ value }}
     </p>
   </div>

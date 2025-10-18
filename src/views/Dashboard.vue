@@ -77,7 +77,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
     <!-- Pending Approvals -->
     <PendingApprovals />
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
       <StatCard
         :label="t('dashboard.totalBalance')"
         :value="formatCurrency(totalBalance)"
@@ -113,13 +113,13 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
       />
 
       <!-- Recent Transactions List -->
-      <div v-else class="space-y-3">
+      <div v-else class="space-y-2 sm:space-y-3">
         <div
           v-for="transaction in recentTransactions"
           :key="transaction.id"
-          class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
         >
-          <div class="flex items-center gap-3 flex-1">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
             <!-- Category Icon -->
             <div
               v-if="transaction.categories"
@@ -133,20 +133,23 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
 
             <!-- Transaction Details -->
             <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-900">
+              <p class="font-medium text-gray-900 truncate">
                 {{ transaction.categories?.name || t('common.uncategorized') }}
               </p>
               <p class="text-sm text-gray-500 truncate">
                 {{ transaction.description || t('common.noDescription') }}
               </p>
             </div>
+          </div>
 
-            <!-- Date -->
-            <div class="text-right flex-shrink-0 mr-4">
+          <!-- Date, Type & Amount (Mobile: Row, Desktop: Original layout) -->
+          <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+            <!-- Date & Type -->
+            <div class="text-left sm:text-right">
               <p class="text-sm text-gray-600">{{ formatDate(transaction.date) }}</p>
               <span
                 :class="[
-                  'inline-flex px-2 py-1 text-xs font-medium rounded-full',
+                  'inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1',
                   getTypeBadgeColor(transaction.type),
                 ]"
               >
@@ -157,14 +160,14 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                 }}
               </span>
             </div>
-          </div>
 
-          <!-- Amount -->
-          <div
-            class="text-right font-semibold flex-shrink-0"
-            :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-          >
-            {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+            <!-- Amount -->
+            <div
+              class="text-right font-semibold whitespace-nowrap"
+              :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+            >
+              {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+            </div>
           </div>
         </div>
 

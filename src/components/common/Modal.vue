@@ -51,25 +51,30 @@ onUnmounted(() => {
         <div class="fixed inset-0 bg-black bg-opacity-50" @click="close"></div>
 
         <!-- Modal Container -->
-        <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="flex min-h-screen items-end sm:items-center justify-center p-0 sm:p-4">
           <Transition
             name="modal-content"
             enter-active-class="transition-all duration-200"
             leave-active-class="transition-all duration-200"
-            enter-from-class="opacity-0 scale-95"
-            leave-to-class="opacity-0 scale-95"
+            enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div
               v-if="modelValue"
-              :class="['relative w-full bg-white rounded-lg shadow-xl', maxWidth]"
+              :class="[
+                'relative w-full bg-white shadow-xl',
+                'max-h-[90vh] sm:max-h-[85vh] overflow-y-auto',
+                'rounded-t-2xl sm:rounded-lg',
+                maxWidth
+              ]"
               @click.stop
             >
               <!-- Header -->
-              <div class="flex items-center justify-between p-6 border-b">
-                <h3 class="text-xl font-semibold text-gray-900">{{ title }}</h3>
+              <div class="flex items-center justify-between p-4 sm:p-6 border-b sticky top-0 bg-white z-10 rounded-t-2xl sm:rounded-t-lg">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-900">{{ title }}</h3>
                 <button
                   @click="close"
-                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                  class="text-gray-400 hover:text-gray-600 transition-colors p-1"
                   aria-label="Close modal"
                 >
                   <svg
@@ -89,12 +94,12 @@ onUnmounted(() => {
               </div>
 
               <!-- Content -->
-              <div class="p-6">
+              <div class="p-4 sm:p-6">
                 <slot></slot>
               </div>
 
               <!-- Footer -->
-              <div v-if="$slots.footer" class="px-6 py-4 border-t bg-gray-50 rounded-b-lg">
+              <div v-if="$slots.footer" class="px-4 sm:px-6 py-3 sm:py-4 border-t bg-gray-50 sticky bottom-0 rounded-b-2xl sm:rounded-b-lg">
                 <slot name="footer"></slot>
               </div>
             </div>

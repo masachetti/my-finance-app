@@ -359,3 +359,4 @@ onUnmounted(() => {
 - Use R$ for money
 - Use pt-BR locale for dates
 - Always use i18n and create both pt-BR and en strings
+- Always style components using mobile-first approach

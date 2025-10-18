@@ -110,7 +110,7 @@ const submitLabel = computed(() => {
     </div>
 
     <!-- Categories Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       <!-- Income Categories -->
       <div class="card">
         <h3 class="text-lg font-semibold mb-4 text-gray-900">
@@ -128,20 +128,20 @@ const submitLabel = computed(() => {
             :key="category.id"
             class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
-                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
                 :style="{ backgroundColor: category.color }"
               >
                 {{ category.icon || category.name.charAt(0).toUpperCase() }}
               </div>
-              <span class="font-medium text-gray-900">{{ category.name }}</span>
+              <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <button
                 @click="handleEditCategory(category)"
-                class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
+                class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
                 :aria-label="t('categories.editCategoryAriaLabel')"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +155,7 @@ const submitLabel = computed(() => {
               </button>
               <button
                 @click="confirmDelete(category)"
-                class="p-2 text-gray-600 hover:text-red-600 transition-colors"
+                class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
                 :aria-label="t('categories.deleteCategoryAriaLabel')"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,20 +189,20 @@ const submitLabel = computed(() => {
             :key="category.id"
             class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
-                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
                 :style="{ backgroundColor: category.color }"
               >
                 {{ category.icon || category.name.charAt(0).toUpperCase() }}
               </div>
-              <span class="font-medium text-gray-900">{{ category.name }}</span>
+              <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <button
                 @click="handleEditCategory(category)"
-                class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
+                class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
                 :aria-label="t('categories.editCategoryAriaLabel')"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,7 @@ const submitLabel = computed(() => {
               </button>
               <button
                 @click="confirmDelete(category)"
-                class="p-2 text-gray-600 hover:text-red-600 transition-colors"
+                class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
                 :aria-label="t('categories.deleteCategoryAriaLabel')"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
