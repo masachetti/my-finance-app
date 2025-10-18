@@ -9,7 +9,7 @@ export default {
     save: 'Save',
     actions: 'Actions',
     noDescription: 'No description',
-    uncategorized: 'Uncategorized'
+    uncategorized: 'Uncategorized',
   },
   nav: {
     appName: 'My Finance App',
@@ -17,19 +17,19 @@ export default {
     transactions: 'Transactions',
     budgets: 'Budgets',
     categories: 'Categories',
-    logout: 'Logout'
+    logout: 'Logout',
   },
   auth: {
     login: {
       title: 'My Finance App',
       subtitle: 'Sign in to manage your finances',
       email: 'Email',
-      emailPlaceholder: 'your@email.com',
+      emailPlaceholder: 'your{@}email.com',
       password: 'Password',
       passwordPlaceholder: '••••••••',
       signIn: 'Sign In',
-      loading: 'Loading...'
-    }
+      loading: 'Loading...',
+    },
   },
   dashboard: {
     title: 'Dashboard',
@@ -40,7 +40,7 @@ export default {
     recentTransactions: 'Recent Transactions',
     loadingTransactions: 'Loading transactions...',
     noTransactions: 'No transactions yet. Start by adding your first transaction!',
-    viewAllTransactions: 'View all transactions'
+    viewAllTransactions: 'View all transactions',
   },
   transactions: {
     title: 'Transactions',
@@ -58,14 +58,15 @@ export default {
     noIncomeTransactions: 'No income transactions found.',
     noExpenseTransactions: 'No expense transactions found.',
     deleteTitle: 'Delete Transaction',
-    deleteConfirmation: 'Are you sure you want to delete this transaction? This action cannot be undone.',
+    deleteConfirmation:
+      'Are you sure you want to delete this transaction? This action cannot be undone.',
     amount: 'Amount',
     category: 'Category',
     description: 'Description',
     type: 'Type',
     date: 'Date',
     editAriaLabel: 'Edit transaction',
-    deleteAriaLabel: 'Delete transaction'
+    deleteAriaLabel: 'Delete transaction',
   },
   budgets: {
     title: 'Budgets',
@@ -74,7 +75,8 @@ export default {
     editBudget: 'Edit Budget',
     noBudgets: 'No budgets yet. Click "Add Budget" to create your first budget!',
     deleteTitle: 'Delete Budget',
-    deleteConfirmation: 'Are you sure you want to delete this budget? This action cannot be undone.',
+    deleteConfirmation:
+      'Are you sure you want to delete this budget? This action cannot be undone.',
     month: 'Month',
     limit: 'Limit',
     spent: 'Spent',
@@ -114,7 +116,8 @@ export default {
     noCategories: 'No categories yet. Click "Add Category" to get started!',
     deleteTitle: 'Delete Category',
     deleteConfirmation: 'Are you sure you want to delete "{name}"? This action cannot be undone.',
-    deleteWarning: 'Note: Existing transactions will remain but will lose their category association.',
+    deleteWarning:
+      'Note: Existing transactions will remain but will lose their category association.',
     name: 'Name',
     type: 'Type',
     color: 'Color',
@@ -142,7 +145,7 @@ export default {
       date: 'Date',
       type: 'Type',
       income: 'Income',
-      expense: 'Expense'
+      expense: 'Expense',
     },
     budget: {
       category: 'Category',
@@ -171,7 +174,7 @@ export default {
       icon: 'Icon (Optional)',
       iconPlaceholder: 'Ex: 🏠, 🍔, 💰',
       iconHelp: 'Select an emoji for this category',
-      chooseEmoji: 'Choose Emoji'
-    }
-  }
+      chooseEmoji: 'Choose Emoji',
+    },
+  },
 }

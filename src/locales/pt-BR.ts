@@ -24,7 +24,7 @@ export default {
       title: 'Meu App de Finanças',
       subtitle: 'Faça login para gerenciar suas finanças',
       email: 'Email',
-      emailPlaceholder: 'seu@email.com',
+      emailPlaceholder: "seu{'@'}email.com",
       password: 'Senha',
       passwordPlaceholder: '••••••••',
       signIn: 'Entrar',
@@ -73,7 +73,8 @@ export default {
     subtitle: 'Defina e acompanhe seus limites de gastos mensais',
     addBudget: 'Adicionar Orçamento',
     editBudget: 'Editar Orçamento',
-    noBudgets: 'Nenhum orçamento ainda. Clique em "Adicionar Orçamento" para criar seu primeiro orçamento!',
+    noBudgets:
+      'Nenhum orçamento ainda. Clique em "Adicionar Orçamento" para criar seu primeiro orçamento!',
     deleteTitle: 'Excluir Orçamento',
     deleteConfirmation:
       'Tem certeza de que deseja excluir este orçamento? Esta ação não pode ser desfeita.',
@@ -117,7 +118,8 @@ export default {
     deleteTitle: 'Excluir Categoria',
     deleteConfirmation:
       'Tem certeza de que deseja excluir "{name}"? Esta ação não pode ser desfeita.',
-    deleteWarning: 'Nota: As transações existentes permanecerão, mas perderão sua associação de categoria.',
+    deleteWarning:
+      'Nota: As transações existentes permanecerão, mas perderão sua associação de categoria.',
     name: 'Nome',
     type: 'Tipo',
     color: 'Cor',
