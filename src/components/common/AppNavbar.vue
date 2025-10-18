@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore, type Locale } from '@/stores/locale'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -13,7 +14,7 @@ const navItems = computed(() => [
   { name: t('nav.dashboard'), path: '/' },
   { name: t('nav.transactions'), path: '/transactions' },
   { name: t('nav.budgets'), path: '/budgets' },
-  { name: t('nav.categories'), path: '/categories' }
+  { name: t('nav.categories'), path: '/categories' },
 ])
 
 async function handleLogout() {
@@ -49,7 +50,7 @@ const currentLanguageLabel = computed(() => {
               'px-3 py-2 rounded-md text-sm',
               isActive(item.path)
                 ? 'text-gray-900 font-semibold'
-                : 'text-gray-700 hover:text-gray-900 font-medium'
+                : 'text-gray-700 hover:text-gray-900 font-medium',
             ]"
           >
             {{ item.name }}

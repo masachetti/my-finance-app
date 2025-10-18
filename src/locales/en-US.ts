@@ -72,27 +72,64 @@ export default {
     subtitle: 'Set and track your monthly spending limits',
     addBudget: 'Add Budget',
     editBudget: 'Edit Budget',
-    noBudgets: 'No budgets yet. Click "Add Budget" to get started!',
+    noBudgets: 'No budgets yet. Click "Add Budget" to create your first budget!',
     deleteTitle: 'Delete Budget',
     deleteConfirmation: 'Are you sure you want to delete this budget? This action cannot be undone.',
     month: 'Month',
     limit: 'Limit',
     spent: 'Spent',
     remaining: 'Remaining',
-    progress: 'Progress'
+    progress: 'Progress',
+    // Summary stats
+    totalBudgeted: 'Total Budgeted',
+    totalSpent: 'Total Spent',
+    totalRemaining: 'Remaining',
+    // Status badges
+    overBudget: 'Over Budget',
+    nearLimit: 'Near Limit',
+    onTrack: 'On Track',
+    // Progress labels
+    spentLabel: 'spent',
+    limitLabel: 'limit',
+    remainingLabel: 'remaining',
+    overLabel: 'over',
+    // Loading and error states
+    loadingBudgets: 'Loading budgets...',
+    // Aria labels
+    previousMonthAriaLabel: 'Previous month',
+    nextMonthAriaLabel: 'Next month',
+    editBudgetAriaLabel: 'Edit budget',
+    deleteBudgetAriaLabel: 'Delete budget',
+    // Modal
+    category: 'Category',
+    budget: 'Budget',
+    // Delete confirmation
+    unknownCategory: 'Unknown',
   },
   categories: {
     title: 'Categories',
-    subtitle: 'Organize your transactions with custom categories',
+    subtitle: 'Organize your transactions',
     addCategory: 'Add Category',
     editCategory: 'Edit Category',
     noCategories: 'No categories yet. Click "Add Category" to get started!',
     deleteTitle: 'Delete Category',
-    deleteConfirmation: 'Are you sure you want to delete this category? This action cannot be undone.',
+    deleteConfirmation: 'Are you sure you want to delete "{name}"? This action cannot be undone.',
+    deleteWarning: 'Note: Existing transactions will remain but will lose their category association.',
     name: 'Name',
     type: 'Type',
     color: 'Color',
-    icon: 'Icon'
+    icon: 'Icon',
+    // Section headings
+    incomeCategories: 'Income Categories',
+    expenseCategories: 'Expense Categories',
+    // Empty states
+    noIncomeCategories: 'No income categories yet.',
+    noExpenseCategories: 'No expense categories yet.',
+    // Loading states
+    loadingCategories: 'Loading categories...',
+    // Aria labels
+    editCategoryAriaLabel: 'Edit category',
+    deleteCategoryAriaLabel: 'Delete category',
   },
   forms: {
     transaction: {
@@ -110,19 +147,30 @@ export default {
     budget: {
       category: 'Category',
       categoryPlaceholder: 'Select a category',
+      categoryRequired: 'Please select a category',
       month: 'Month',
-      limit: 'Limit',
-      limitPlaceholder: '0.00'
+      monthRequired: 'Please select a month',
+      invalidMonth: 'Invalid month format',
+      limit: 'Budget Limit',
+      limitPlaceholder: '0.00',
+      limitRequired: 'Please enter a valid amount',
+      limitPositive: 'Budget amount must be greater than 0',
+      limitHelp: 'Maximum amount you plan to spend in this category',
+      noExpenseCategories: 'No expense categories available. Please create one first.',
     },
     category: {
-      name: 'Name',
-      namePlaceholder: 'Category name',
+      name: 'Category Name',
+      namePlaceholder: 'e.g., Groceries, Salary, Rent',
+      nameRequired: 'Category name is required',
+      nameMinLength: 'Category name must be at least 2 characters',
       type: 'Type',
       income: 'Income',
       expense: 'Expense',
       color: 'Color',
-      icon: 'Icon (optional)',
+      selectColor: 'Select color {color}',
+      icon: 'Icon (Optional)',
       iconPlaceholder: 'Ex: 🏠, 🍔, 💰',
+      iconHelp: 'Select an emoji for this category',
       chooseEmoji: 'Choose Emoji'
     }
   }

@@ -87,6 +87,6 @@
     "watchEffect": true,
     "watchPostEffect": true,
     "watchSyncEffect": true,
-    "useI18n": true
+    "i18n": true
   }
 }

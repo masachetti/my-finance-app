@@ -9,20 +9,22 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-      imports: ['vue', 'vue-router', 'pinia', 'vue-i18n'],
+      imports: ['vue', 'vue-router', 'pinia'],
       dts: 'src/auto-imports.d.ts',
       eslintrc: {
-        enabled: true
-      }
+        enabled: true,
+      },
+      // Import types for better TypeScript support
+      dirs: ['src/i18n'],
     }),
     Components({
-      dts: 'src/components.d.ts'
-    })
+      dts: 'src/components.d.ts',
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
-  base: '/my-finance-app/'
+  base: '/my-finance-app/',
 })

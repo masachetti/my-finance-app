@@ -6,10 +6,12 @@ import Modal from '@/components/common/Modal.vue'
 import CategoryForm from '@/components/forms/CategoryForm.vue'
 import { useCategoriesStore } from '@/stores/categories'
 import type { Database } from '@/types/database'
+import { useI18n } from '@/composables/useI18n'
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert']
 type Category = Database['public']['Tables']['categories']['Row']
 
+const { t } = useI18n()
 const categoriesStore = useCategoriesStore()
 
 // Modal state
@@ -77,26 +79,26 @@ async function handleDelete() {
 
 // Modal title
 const modalTitle = computed(() => {
-  return editingCategory.value ? 'Edit Category' : 'Add Category'
+  return editingCategory.value ? t('categories.editCategory') : t('categories.addCategory')
 })
 
 const submitLabel = computed(() => {
-  return editingCategory.value ? 'Update' : 'Create'
+  return editingCategory.value ? t('common.update') : t('common.create')
 })
 </script>
 
 <template>
   <AppLayout>
     <PageHeader
-      title="Categories"
-      subtitle="Organize your transactions"
-      action-label="Add Category"
+      :title="t('categories.title')"
+      :subtitle="t('categories.subtitle')"
+      :action-label="t('categories.addCategory')"
       @action="handleAddCategory"
     />
 
     <!-- Loading State -->
     <div v-if="categoriesStore.loading" class="text-center py-12">
-      <p class="text-gray-500">Loading categories...</p>
+      <p class="text-gray-500">{{ t('categories.loadingCategories') }}</p>
     </div>
 
     <!-- Error State -->
@@ -111,11 +113,13 @@ const submitLabel = computed(() => {
     <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Income Categories -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900">Income Categories</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">
+          {{ t('categories.incomeCategories') }}
+        </h3>
 
         <EmptyState
           v-if="categoriesStore.incomeCategories.length === 0"
-          message="No income categories yet."
+          :message="t('categories.noIncomeCategories')"
         />
 
         <div v-else class="space-y-2">
@@ -138,14 +142,9 @@ const submitLabel = computed(() => {
               <button
                 @click="handleEditCategory(category)"
                 class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
-                aria-label="Edit category"
+                :aria-label="t('categories.editCategoryAriaLabel')"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -157,14 +156,9 @@ const submitLabel = computed(() => {
               <button
                 @click="confirmDelete(category)"
                 class="p-2 text-gray-600 hover:text-red-600 transition-colors"
-                aria-label="Delete category"
+                :aria-label="t('categories.deleteCategoryAriaLabel')"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -180,11 +174,13 @@ const submitLabel = computed(() => {
 
       <!-- Expense Categories -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900">Expense Categories</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900">
+          {{ t('categories.expenseCategories') }}
+        </h3>
 
         <EmptyState
           v-if="categoriesStore.expenseCategories.length === 0"
-          message="No expense categories yet."
+          :message="t('categories.noExpenseCategories')"
         />
 
         <div v-else class="space-y-2">
@@ -207,14 +203,9 @@ const submitLabel = computed(() => {
               <button
                 @click="handleEditCategory(category)"
                 class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
-                aria-label="Edit category"
+                :aria-label="t('categories.editCategoryAriaLabel')"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -226,14 +217,9 @@ const submitLabel = computed(() => {
               <button
                 @click="confirmDelete(category)"
                 class="p-2 text-gray-600 hover:text-red-600 transition-colors"
-                aria-label="Delete category"
+                :aria-label="t('categories.deleteCategoryAriaLabel')"
               >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -257,7 +243,7 @@ const submitLabel = computed(() => {
                 name: editingCategory.name,
                 type: editingCategory.type,
                 color: editingCategory.color,
-                icon: editingCategory.icon
+                icon: editingCategory.icon,
               }
             : undefined
         "
@@ -268,25 +254,21 @@ const submitLabel = computed(() => {
     </Modal>
 
     <!-- Delete Confirmation Modal -->
-    <Modal
-      v-model="showDeleteConfirm"
-      title="Delete Category"
-      max-width="max-w-sm"
-    >
+    <Modal v-model="showDeleteConfirm" :title="t('categories.deleteTitle')" max-width="max-w-sm">
       <div class="space-y-4">
         <p class="text-gray-700">
-          Are you sure you want to delete "{{ categoryToDelete?.name }}"? This action
-          cannot be undone.
+          {{ t('categories.deleteConfirmation', { name: categoryToDelete?.name }) }}
         </p>
         <p class="text-sm text-amber-600">
-          Note: Existing transactions will remain but will lose their category
-          association.
+          {{ t('categories.deleteWarning') }}
         </p>
         <div class="flex gap-3 pt-2">
           <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">
-            Delete
+            {{ t('common.delete') }}
           </button>
-          <button @click="cancelDelete" class="btn btn-secondary flex-1">Cancel</button>
+          <button @click="cancelDelete" class="btn btn-secondary flex-1">
+            {{ t('common.cancel') }}
+          </button>
         </div>
       </div>
     </Modal>

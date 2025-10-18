@@ -10,8 +10,11 @@ import { useTransactionsStore } from '@/stores/transactions'
 import { formatCurrency, formatMonth } from '@/utils/formatters'
 import type { Database } from '@/types/database'
 import type { BudgetWithDetails } from '@/stores/budgets'
+import { useI18n } from '@/composables/useI18n'
 
 type BudgetInsert = Database['public']['Tables']['budgets']['Insert']
+
+const { t } = useI18n()
 
 const budgetsStore = useBudgetsStore()
 const transactionsStore = useTransactionsStore()
@@ -99,11 +102,11 @@ async function handleNextMonth() {
 
 // Modal title
 const modalTitle = computed(() => {
-  return editingBudget.value ? 'Edit Budget' : 'Add Budget'
+  return editingBudget.value ? t('budgets.editBudget') : t('budgets.addBudget')
 })
 
 const submitLabel = computed(() => {
-  return editingBudget.value ? 'Update' : 'Create'
+  return editingBudget.value ? t('common.update') : t('common.create')
 })
 
 // Get progress bar color based on percentage
@@ -116,37 +119,37 @@ function getProgressBarColor(percentage: number): string {
 // Get status badge
 function getStatusBadge(percentage: number): { text: string; color: string } {
   if (percentage >= 100) {
-    return { text: 'Over Budget', color: 'bg-red-100 text-red-800' }
+    return { text: t('budgets.overBudget'), color: 'bg-red-100 text-red-800' }
   }
   if (percentage >= 80) {
-    return { text: 'Near Limit', color: 'bg-amber-100 text-amber-800' }
+    return { text: t('budgets.nearLimit'), color: 'bg-amber-100 text-amber-800' }
   }
-  return { text: 'On Track', color: 'bg-green-100 text-green-800' }
+  return { text: t('budgets.onTrack'), color: 'bg-green-100 text-green-800' }
 }
 </script>
 
 <template>
   <AppLayout>
     <PageHeader
-      title="Budgets"
-      subtitle="Set and track your spending limits"
-      action-label="Add Budget"
+      :title="t('budgets.title')"
+      :subtitle="t('budgets.subtitle')"
+      :action-label="t('budgets.addBudget')"
       @action="handleAddBudget"
     />
 
     <!-- Summary Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <StatCard
-        label="Total Budgeted"
+        :label="t('budgets.totalBudgeted')"
         :value="formatCurrency(budgetsStore.totalBudgeted)"
       />
       <StatCard
-        label="Total Spent"
+        :label="t('budgets.totalSpent')"
         :value="formatCurrency(budgetsStore.totalSpent)"
         :color="budgetsStore.totalSpent > budgetsStore.totalBudgeted ? 'red' : 'default'"
       />
       <StatCard
-        label="Remaining"
+        :label="t('budgets.totalRemaining')"
         :value="formatCurrency(budgetsStore.totalRemaining)"
         :color="budgetsStore.totalRemaining >= 0 ? 'green' : 'red'"
       />
@@ -158,7 +161,7 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
         <button
           @click="handlePreviousMonth"
           class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-100"
-          aria-label="Previous month"
+          :aria-label="t('budgets.previousMonthAriaLabel')"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -177,7 +180,7 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
         <button
           @click="handleNextMonth"
           class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-100"
-          aria-label="Next month"
+          :aria-label="t('budgets.nextMonthAriaLabel')"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -193,7 +196,7 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
 
     <!-- Loading State -->
     <div v-if="budgetsStore.loading" class="text-center py-12">
-      <p class="text-gray-500">Loading budgets...</p>
+      <p class="text-gray-500">{{ t('budgets.loadingBudgets') }}</p>
     </div>
 
     <!-- Error State -->
@@ -205,10 +208,7 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
     </div>
 
     <!-- Empty State -->
-    <EmptyState
-      v-else-if="budgetsStore.budgets.length === 0"
-      message='No budgets yet. Click "Add Budget" to create your first budget!'
-    />
+    <EmptyState v-else-if="budgetsStore.budgets.length === 0" :message="t('budgets.noBudgets')" />
 
     <!-- Budgets List -->
     <div v-else class="space-y-4">
@@ -224,19 +224,16 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
               class="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-semibold"
               :style="{ backgroundColor: budget.categories.color }"
             >
-              {{
-                budget.categories.icon ||
-                budget.categories.name.charAt(0).toUpperCase()
-              }}
+              {{ budget.categories.icon || budget.categories.name.charAt(0).toUpperCase() }}
             </div>
             <div>
               <h3 class="text-lg font-semibold text-gray-900">
-                {{ budget.categories?.name || 'Unknown Category' }}
+                {{ budget.categories?.name || t('budgets.unknownCategory') }}
               </h3>
               <span
                 :class="[
                   'inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1',
-                  getStatusBadge(budget.percentage).color
+                  getStatusBadge(budget.percentage).color,
                 ]"
               >
                 {{ getStatusBadge(budget.percentage).text }}
@@ -248,14 +245,9 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
             <button
               @click="handleEditBudget(budget)"
               class="p-2 text-gray-600 hover:text-primary-600 transition-colors"
-              aria-label="Edit budget"
+              :aria-label="t('budgets.editBudgetAriaLabel')"
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -267,14 +259,9 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
             <button
               @click="confirmDelete(budget)"
               class="p-2 text-gray-600 hover:text-red-600 transition-colors"
-              aria-label="Delete budget"
+              :aria-label="t('budgets.deleteBudgetAriaLabel')"
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -290,15 +277,18 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
         <div class="mb-3">
           <div class="flex justify-between text-sm mb-2">
             <span class="text-gray-600">
-              {{ formatCurrency(budget.spent) }} spent
+              {{ formatCurrency(budget.spent) }} {{ t('budgets.spentLabel') }}
             </span>
             <span class="text-gray-600">
-              {{ formatCurrency(budget.amount) }} limit
+              {{ formatCurrency(budget.amount) }} {{ t('budgets.limitLabel') }}
             </span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div
-              :class="['h-full transition-all duration-300', getProgressBarColor(budget.percentage)]"
+              :class="[
+                'h-full transition-all duration-300',
+                getProgressBarColor(budget.percentage),
+              ]"
               :style="{ width: `${Math.min(budget.percentage, 100)}%` }"
             ></div>
           </div>
@@ -308,11 +298,9 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
               :class="budget.remaining >= 0 ? 'text-green-600' : 'text-red-600'"
             >
               {{ formatCurrency(Math.abs(budget.remaining)) }}
-              {{ budget.remaining >= 0 ? 'remaining' : 'over' }}
+              {{ budget.remaining >= 0 ? t('budgets.remainingLabel') : t('budgets.overLabel') }}
             </span>
-            <span class="text-gray-600 font-medium">
-              {{ Math.round(budget.percentage) }}%
-            </span>
+            <span class="text-gray-600 font-medium"> {{ Math.round(budget.percentage) }}% </span>
           </div>
         </div>
       </div>
@@ -326,7 +314,7 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
             ? {
                 category_id: editingBudget.category_id,
                 amount: editingBudget.amount,
-                month: editingBudget.month
+                month: editingBudget.month,
               }
             : { month: budgetsStore.currentMonth }
         "
@@ -337,29 +325,30 @@ function getStatusBadge(percentage: number): { text: string; color: string } {
     </Modal>
 
     <!-- Delete Confirmation Modal -->
-    <Modal v-model="showDeleteConfirm" title="Delete Budget" max-width="max-w-sm">
+    <Modal v-model="showDeleteConfirm" :title="t('budgets.deleteTitle')" max-width="max-w-sm">
       <div class="space-y-4">
         <p class="text-gray-700">
-          Are you sure you want to delete this budget? This action cannot be undone.
+          {{ t('budgets.deleteConfirmation') }}
         </p>
-        <div
-          v-if="budgetToDelete"
-          class="p-3 bg-gray-50 rounded-lg text-sm space-y-1"
-        >
+        <div v-if="budgetToDelete" class="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
           <p>
-            <strong>Category:</strong>
-            {{ budgetToDelete.categories?.name || 'Unknown' }}
+            <strong>{{ t('budgets.category') }}:</strong>
+            {{ budgetToDelete.categories?.name || t('budgets.unknownCategory') }}
           </p>
           <p>
-            <strong>Budget:</strong> {{ formatCurrency(budgetToDelete.amount) }}
+            <strong>{{ t('budgets.budget') }}:</strong> {{ formatCurrency(budgetToDelete.amount) }}
           </p>
-          <p><strong>Month:</strong> {{ formatMonth(budgetToDelete.month) }}</p>
+          <p>
+            <strong>{{ t('budgets.month') }}:</strong> {{ formatMonth(budgetToDelete.month) }}
+          </p>
         </div>
         <div class="flex gap-3 pt-2">
           <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">
-            Delete
+            {{ t('common.delete') }}
           </button>
-          <button @click="cancelDelete" class="btn btn-secondary flex-1">Cancel</button>
+          <button @click="cancelDelete" class="btn btn-secondary flex-1">
+            {{ t('common.cancel') }}
+          </button>
         </div>
       </div>
     </Modal>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -66,11 +67,7 @@ async function handleLogin() {
           {{ error }}
         </div>
 
-        <button
-          type="submit"
-          :disabled="loading"
-          class="btn btn-primary w-full"
-        >
+        <button type="submit" :disabled="loading" class="btn btn-primary w-full">
           {{ loading ? t('auth.login.loading') : t('auth.login.signIn') }}
         </button>
       </form>

@@ -8,6 +8,7 @@ import EmptyState from '@/components/common/EmptyState.vue'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
 import currency from 'currency.js'
+import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -114,8 +115,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
               :style="{ backgroundColor: transaction.categories.color }"
             >
               {{
-                transaction.categories.icon ||
-                transaction.categories.name.charAt(0).toUpperCase()
+                transaction.categories.icon || transaction.categories.name.charAt(0).toUpperCase()
               }}
             </div>
 
@@ -135,10 +135,14 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
               <span
                 :class="[
                   'inline-flex px-2 py-1 text-xs font-medium rounded-full',
-                  getTypeBadgeColor(transaction.type)
+                  getTypeBadgeColor(transaction.type),
                 ]"
               >
-                {{ transaction.type === 'income' ? t('forms.transaction.income') : t('forms.transaction.expense') }}
+                {{
+                  transaction.type === 'income'
+                    ? t('forms.transaction.income')
+                    : t('forms.transaction.expense')
+                }}
               </span>
             </div>
           </div>
@@ -148,8 +152,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
             class="text-right font-semibold flex-shrink-0"
             :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
           >
-            {{ transaction.type === 'income' ? '+' : '-'
-            }}{{ formatCurrency(transaction.amount) }}
+            {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import { useTransactionsStore } from '@/stores/transactions'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import type { Database } from '@/types/database'
 import type { TransactionWithCategory } from '@/stores/transactions'
+import { useI18n } from '@/composables/useI18n'
 
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 
@@ -89,7 +90,9 @@ async function handleDelete() {
 
 // Modal title
 const modalTitle = computed(() => {
-  return editingTransaction.value ? t('transactions.editTransaction') : t('transactions.addTransaction')
+  return editingTransaction.value
+    ? t('transactions.editTransaction')
+    : t('transactions.addTransaction')
 })
 
 const submitLabel = computed(() => {
@@ -200,12 +203,24 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
         <table class="w-full">
           <thead>
             <tr class="border-b">
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.date') }}</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.category') }}</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.description') }}</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-900">{{ t('transactions.type') }}</th>
-              <th class="text-right py-3 px-4 font-semibold text-gray-900">{{ t('transactions.amount') }}</th>
-              <th class="text-right py-3 px-4 font-semibold text-gray-900">{{ t('common.actions') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">
+                {{ t('transactions.date') }}
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">
+                {{ t('transactions.category') }}
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">
+                {{ t('transactions.description') }}
+              </th>
+              <th class="text-left py-3 px-4 font-semibold text-gray-900">
+                {{ t('transactions.type') }}
+              </th>
+              <th class="text-right py-3 px-4 font-semibold text-gray-900">
+                {{ t('transactions.amount') }}
+              </th>
+              <th class="text-right py-3 px-4 font-semibold text-gray-900">
+                {{ t('common.actions') }}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -251,7 +266,11 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                     getTypeBadgeColor(transaction.type),
                   ]"
                 >
-                  {{ transaction.type === 'income' ? t('forms.transaction.income') : t('forms.transaction.expense') }}
+                  {{
+                    transaction.type === 'income'
+                      ? t('forms.transaction.income')
+                      : t('forms.transaction.expense')
+                  }}
                 </span>
               </td>
 
@@ -338,11 +357,18 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
             <strong>{{ t('transactions.category') }}:</strong>
             {{ transactionToDelete.categories?.name || t('common.uncategorized') }}
           </p>
-          <p><strong>{{ t('transactions.date') }}:</strong> {{ formatDate(transactionToDelete.date) }}</p>
+          <p>
+            <strong>{{ t('transactions.date') }}:</strong>
+            {{ formatDate(transactionToDelete.date) }}
+          </p>
         </div>
         <div class="flex gap-3 pt-2">
-          <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">{{ t('common.delete') }}</button>
-          <button @click="cancelDelete" class="btn btn-secondary flex-1">{{ t('common.cancel') }}</button>
+          <button @click="handleDelete" class="btn btn-primary bg-red-600 flex-1">
+            {{ t('common.delete') }}
+          </button>
+          <button @click="cancelDelete" class="btn btn-secondary flex-1">
+            {{ t('common.cancel') }}
+          </button>
         </div>
       </div>
     </Modal>

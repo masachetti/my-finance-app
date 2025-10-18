@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Database } from '@/types/database'
 import EmojiPicker from '@/components/common/EmojiPicker.vue'
+import { useI18n } from '@/composables/useI18n'
 
 type CategoryInsert = Database['public']['Tables']['categories']['Insert']
 
@@ -15,7 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  submitLabel: 'Save'
+  submitLabel: 'Save',
 })
 
 const emit = defineEmits<{
@@ -23,17 +24,19 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
+const { t } = useI18n()
+
 // Form state
 const formData = reactive({
   name: props.initialData?.name || '',
   type: props.initialData?.type || ('expense' as 'income' | 'expense'),
   color: props.initialData?.color || '#3b82f6',
-  icon: props.initialData?.icon || null
+  icon: props.initialData?.icon || null,
 })
 
 // Validation
 const errors = reactive({
-  name: ''
+  name: '',
 })
 
 // Predefined color options
@@ -55,19 +58,19 @@ const colorOptions = [
   '#d946ef', // fuchsia
   '#ec4899', // pink
   '#64748b', // slate
-  '#737373' // neutral
+  '#737373', // neutral
 ]
 
 function validateForm(): boolean {
   errors.name = ''
 
   if (!formData.name.trim()) {
-    errors.name = 'Category name is required'
+    errors.name = t('forms.category.nameRequired')
     return false
   }
 
   if (formData.name.trim().length < 2) {
-    errors.name = 'Category name must be at least 2 characters'
+    errors.name = t('forms.category.nameMinLength')
     return false
   }
 
@@ -81,7 +84,7 @@ function handleSubmit() {
     name: formData.name.trim(),
     type: formData.type,
     color: formData.color,
-    icon: formData.icon
+    icon: formData.icon,
   })
 }
 
@@ -95,7 +98,7 @@ function handleCancel() {
     <!-- Category Name -->
     <div>
       <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-        Category Name <span class="text-red-500">*</span>
+        {{ t('forms.category.name') }} <span class="text-red-500">*</span>
       </label>
       <input
         id="name"
@@ -103,7 +106,7 @@ function handleCancel() {
         type="text"
         class="input w-full"
         :class="{ 'border-red-500': errors.name }"
-        placeholder="e.g., Groceries, Salary, Rent"
+        :placeholder="t('forms.category.namePlaceholder')"
         required
       />
       <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
@@ -112,7 +115,7 @@ function handleCancel() {
     <!-- Category Type -->
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">
-        Type <span class="text-red-500">*</span>
+        {{ t('forms.category.type') }} <span class="text-red-500">*</span>
       </label>
       <div class="flex gap-4">
         <label class="flex items-center cursor-pointer">
@@ -122,7 +125,7 @@ function handleCancel() {
             value="income"
             class="mr-2 text-primary-600 focus:ring-primary-500"
           />
-          <span class="text-sm">Income</span>
+          <span class="text-sm">{{ t('forms.category.income') }}</span>
         </label>
         <label class="flex items-center cursor-pointer">
           <input
@@ -131,7 +134,7 @@ function handleCancel() {
             value="expense"
             class="mr-2 text-primary-600 focus:ring-primary-500"
           />
-          <span class="text-sm">Expense</span>
+          <span class="text-sm">{{ t('forms.category.expense') }}</span>
         </label>
       </div>
     </div>
@@ -139,7 +142,7 @@ function handleCancel() {
     <!-- Color Picker -->
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">
-        Color <span class="text-red-500">*</span>
+        {{ t('forms.category.color') }} <span class="text-red-500">*</span>
       </label>
       <div class="flex items-center gap-3 mb-3">
         <div
@@ -166,7 +169,7 @@ function handleCancel() {
               : 'border-gray-300'
           "
           :style="{ backgroundColor: color }"
-          :aria-label="`Select color ${color}`"
+          :aria-label="t('forms.category.selectColor', { color })"
         ></button>
       </div>
     </div>
@@ -174,10 +177,10 @@ function handleCancel() {
     <!-- Icon (Optional) -->
     <div>
       <label for="icon" class="block text-sm font-medium text-gray-700 mb-1">
-        Icon (Optional)
+        {{ t('forms.category.icon') }}
       </label>
       <EmojiPicker v-model="formData.icon" />
-      <p class="mt-1 text-xs text-gray-500">Select an emoji for this category</p>
+      <p class="mt-1 text-xs text-gray-500">{{ t('forms.category.iconHelp') }}</p>
     </div>
 
     <!-- Form Actions -->
@@ -186,7 +189,7 @@ function handleCancel() {
         {{ submitLabel }}
       </button>
       <button type="button" @click="handleCancel" class="btn btn-secondary flex-1">
-        Cancel
+        {{ t('common.cancel') }}
       </button>
     </div>
   </form>

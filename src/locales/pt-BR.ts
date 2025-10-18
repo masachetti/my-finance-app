@@ -9,15 +9,15 @@ export default {
     save: 'Salvar',
     actions: 'Ações',
     noDescription: 'Sem descrição',
-    uncategorized: 'Sem categoria'
+    uncategorized: 'Sem categoria',
   },
   nav: {
     appName: 'Meu App de Finanças',
-    dashboard: 'Dashboard',
+    dashboard: 'Painel',
     transactions: 'Transações',
     budgets: 'Orçamentos',
     categories: 'Categorias',
-    logout: 'Sair'
+    logout: 'Sair',
   },
   auth: {
     login: {
@@ -28,8 +28,8 @@ export default {
       password: 'Senha',
       passwordPlaceholder: '••••••••',
       signIn: 'Entrar',
-      loading: 'Carregando...'
-    }
+      loading: 'Carregando...',
+    },
   },
   dashboard: {
     title: 'Dashboard',
@@ -40,7 +40,7 @@ export default {
     recentTransactions: 'Transações Recentes',
     loadingTransactions: 'Carregando transações...',
     noTransactions: 'Nenhuma transação ainda. Comece adicionando sua primeira transação!',
-    viewAllTransactions: 'Ver todas as transações'
+    viewAllTransactions: 'Ver todas as transações',
   },
   transactions: {
     title: 'Transações',
@@ -58,41 +58,81 @@ export default {
     noIncomeTransactions: 'Nenhuma transação de receita encontrada.',
     noExpenseTransactions: 'Nenhuma transação de despesa encontrada.',
     deleteTitle: 'Excluir Transação',
-    deleteConfirmation: 'Tem certeza de que deseja excluir esta transação? Esta ação não pode ser desfeita.',
+    deleteConfirmation:
+      'Tem certeza de que deseja excluir esta transação? Esta ação não pode ser desfeita.',
     amount: 'Valor',
     category: 'Categoria',
     description: 'Descrição',
     type: 'Tipo',
     date: 'Data',
     editAriaLabel: 'Editar transação',
-    deleteAriaLabel: 'Excluir transação'
+    deleteAriaLabel: 'Excluir transação',
   },
   budgets: {
     title: 'Orçamentos',
     subtitle: 'Defina e acompanhe seus limites de gastos mensais',
     addBudget: 'Adicionar Orçamento',
     editBudget: 'Editar Orçamento',
-    noBudgets: 'Nenhum orçamento ainda. Clique em "Adicionar Orçamento" para começar!',
+    noBudgets: 'Nenhum orçamento ainda. Clique em "Adicionar Orçamento" para criar seu primeiro orçamento!',
     deleteTitle: 'Excluir Orçamento',
-    deleteConfirmation: 'Tem certeza de que deseja excluir este orçamento? Esta ação não pode ser desfeita.',
+    deleteConfirmation:
+      'Tem certeza de que deseja excluir este orçamento? Esta ação não pode ser desfeita.',
     month: 'Mês',
     limit: 'Limite',
     spent: 'Gasto',
     remaining: 'Restante',
-    progress: 'Progresso'
+    progress: 'Progresso',
+    // Summary stats
+    totalBudgeted: 'Total Orçado',
+    totalSpent: 'Total Gasto',
+    totalRemaining: 'Total Restante',
+    // Status badges
+    overBudget: 'Acima do Orçamento',
+    nearLimit: 'Próximo ao Limite',
+    onTrack: 'No Controle',
+    // Progress labels
+    spentLabel: 'gasto',
+    limitLabel: 'limite',
+    remainingLabel: 'restante',
+    overLabel: 'acima',
+    // Loading and error states
+    loadingBudgets: 'Carregando orçamentos...',
+    // Aria labels
+    previousMonthAriaLabel: 'Mês anterior',
+    nextMonthAriaLabel: 'Próximo mês',
+    editBudgetAriaLabel: 'Editar orçamento',
+    deleteBudgetAriaLabel: 'Excluir orçamento',
+    // Modal
+    category: 'Categoria',
+    budget: 'Orçamento',
+    // Delete confirmation
+    unknownCategory: 'Desconhecido',
   },
   categories: {
     title: 'Categorias',
-    subtitle: 'Organize suas transações com categorias personalizadas',
+    subtitle: 'Organize suas transações',
     addCategory: 'Adicionar Categoria',
     editCategory: 'Editar Categoria',
     noCategories: 'Nenhuma categoria ainda. Clique em "Adicionar Categoria" para começar!',
     deleteTitle: 'Excluir Categoria',
-    deleteConfirmation: 'Tem certeza de que deseja excluir esta categoria? Esta ação não pode ser desfeita.',
+    deleteConfirmation:
+      'Tem certeza de que deseja excluir "{name}"? Esta ação não pode ser desfeita.',
+    deleteWarning: 'Nota: As transações existentes permanecerão, mas perderão sua associação de categoria.',
     name: 'Nome',
     type: 'Tipo',
     color: 'Cor',
-    icon: 'Ícone'
+    icon: 'Ícone',
+    // Section headings
+    incomeCategories: 'Categorias de Receita',
+    expenseCategories: 'Categorias de Despesa',
+    // Empty states
+    noIncomeCategories: 'Nenhuma categoria de receita ainda.',
+    noExpenseCategories: 'Nenhuma categoria de despesa ainda.',
+    // Loading states
+    loadingCategories: 'Carregando categorias...',
+    // Aria labels
+    editCategoryAriaLabel: 'Editar categoria',
+    deleteCategoryAriaLabel: 'Excluir categoria',
   },
   forms: {
     transaction: {
@@ -105,25 +145,36 @@ export default {
       date: 'Data',
       type: 'Tipo',
       income: 'Receita',
-      expense: 'Despesa'
+      expense: 'Despesa',
     },
     budget: {
       category: 'Categoria',
       categoryPlaceholder: 'Selecione uma categoria',
+      categoryRequired: 'Por favor, selecione uma categoria',
       month: 'Mês',
-      limit: 'Limite',
-      limitPlaceholder: '0,00'
+      monthRequired: 'Por favor, selecione um mês',
+      invalidMonth: 'Formato de mês inválido',
+      limit: 'Limite do Orçamento',
+      limitPlaceholder: '0,00',
+      limitRequired: 'Por favor, insira um valor válido',
+      limitPositive: 'O valor do orçamento deve ser maior que 0',
+      limitHelp: 'Valor máximo que você planeja gastar nesta categoria',
+      noExpenseCategories: 'Nenhuma categoria de despesa disponível. Por favor, crie uma primeiro.',
     },
     category: {
-      name: 'Nome',
-      namePlaceholder: 'Nome da categoria',
+      name: 'Nome da Categoria',
+      namePlaceholder: 'ex: Mantimentos, Salário, Aluguel',
+      nameRequired: 'O nome da categoria é obrigatório',
+      nameMinLength: 'O nome da categoria deve ter pelo menos 2 caracteres',
       type: 'Tipo',
       income: 'Receita',
       expense: 'Despesa',
       color: 'Cor',
-      icon: 'Ícone (opcional)',
+      selectColor: 'Selecionar cor {color}',
+      icon: 'Ícone (Opcional)',
       iconPlaceholder: 'Ex: 🏠, 🍔, 💰',
-      chooseEmoji: 'Escolher Emoji'
-    }
-  }
+      iconHelp: 'Selecione um emoji para esta categoria',
+      chooseEmoji: 'Escolher Emoji',
+    },
+  },
 }

@@ -2,6 +2,7 @@
 import { useCategoriesStore } from '@/stores/categories'
 import { format } from 'date-fns'
 import type { Database } from '@/types/database'
+import { useI18n } from '@/composables/useI18n'
 
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  submitLabel: 'Save'
+  submitLabel: 'Save',
 })
 
 const emit = defineEmits<{
@@ -41,14 +42,14 @@ const formData = reactive({
   amount: props.initialData?.amount?.toString() || '',
   description: props.initialData?.description || '',
   date: props.initialData?.date || format(new Date(), 'yyyy-MM-dd'),
-  type: props.initialData?.type || ('expense' as 'income' | 'expense')
+  type: props.initialData?.type || ('expense' as 'income' | 'expense'),
 })
 
 // Validation
 const errors = reactive({
   category_id: '',
   amount: '',
-  date: ''
+  date: '',
 })
 
 // Filter categories based on type
@@ -106,7 +107,7 @@ function handleSubmit() {
     amount: parseFloat(formData.amount),
     description: formData.description.trim() || null,
     date: formData.date,
-    type: formData.type
+    type: formData.type,
   })
 }
 
@@ -157,11 +158,7 @@ function handleCancel() {
         required
       >
         <option value="" disabled>{{ t('forms.transaction.categoryPlaceholder') }}</option>
-        <option
-          v-for="category in availableCategories"
-          :key="category.id"
-          :value="category.id"
-        >
+        <option v-for="category in availableCategories" :key="category.id" :value="category.id">
           {{ category.icon }} {{ category.name }}
         </option>
       </select>
@@ -179,11 +176,7 @@ function handleCancel() {
         {{ t('forms.transaction.amount') }} <span class="text-red-500">*</span>
       </label>
       <div class="relative">
-        <span
-          class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"
-        >
-          R$
-        </span>
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium"> R$ </span>
         <input
           id="amount"
           v-model="formData.amount"
