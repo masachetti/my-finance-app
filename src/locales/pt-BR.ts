@@ -17,6 +17,7 @@ export default {
     transactions: 'Transações',
     budgets: 'Orçamentos',
     categories: 'Categorias',
+    recurrent: 'Recorrentes',
     logout: 'Sair',
   },
   auth: {
@@ -136,6 +137,74 @@ export default {
     editCategoryAriaLabel: 'Editar categoria',
     deleteCategoryAriaLabel: 'Excluir categoria',
   },
+  recurrent: {
+    title: 'Transações Recorrentes',
+    subtitle: 'Gerencie suas transações que se repetem automaticamente',
+    addRecurrent: 'Nova Transação Recorrente',
+    editRecurrent: 'Editar Transação Recorrente',
+    noRecurrent: 'Nenhuma transação recorrente cadastrada.',
+    loadingRecurrent: 'Carregando transações recorrentes...',
+    deleteTitle: 'Confirmar Exclusão',
+    deleteConfirmation:
+      'Tem certeza que deseja excluir esta transação recorrente? Esta ação não pode ser desfeita.',
+    deleteWarning:
+      'Nota: As transações já criadas a partir desta recorrência não serão excluídas.',
+    // Status labels
+    paused: 'Pausado',
+    requiresApproval: 'Requer aprovação',
+    automatic: 'Automático',
+    // Card labels
+    nextOccurrence: 'Próxima: {date}',
+    endsOn: 'Termina em: {date}',
+    noNextDate: 'N/A',
+    // Button titles (tooltips)
+    pauseTooltip: 'Pausar',
+    resumeTooltip: 'Retomar',
+    editTooltip: 'Editar',
+    deleteTooltip: 'Excluir',
+    // Button symbols
+    pauseSymbol: '⏸',
+    resumeSymbol: '▶',
+    editSymbol: '✏️',
+    deleteSymbol: '🗑️',
+    // Dashboard - Upcoming recurring
+    upcomingTitle: 'Próximas Transações Recorrentes',
+    viewAll: 'Ver todas →',
+    tableDate: 'Data',
+    tableCategory: 'Categoria',
+    tableDescription: 'Descrição',
+    tableAmount: 'Valor',
+    tableStatus: 'Status',
+    requiresApprovalLabel: 'Requer aprovação',
+    automaticLabel: 'Automático',
+    // Dashboard - Pending approvals
+    pendingApprovalsTitle: 'Transações Pendentes de Aprovação',
+    approveButton: '✓ Aprovar',
+    rejectButton: '✕ Rejeitar',
+    scheduledFor: 'Data: {date}',
+    // Day names (for formatRecurrenceFrequency)
+    days: {
+      sunday: 'Domingo',
+      monday: 'Segunda-feira',
+      tuesday: 'Terça-feira',
+      wednesday: 'Quarta-feira',
+      thursday: 'Quinta-feira',
+      friday: 'Sexta-feira',
+      saturday: 'Sábado',
+    },
+    // Frequency labels
+    frequency: {
+      daily: 'Diariamente',
+      weekly: 'Semanalmente',
+      monthly: 'Mensalmente',
+    },
+    // Frequency format strings
+    frequencyFormat: {
+      daily: 'Diariamente',
+      weekly: 'Toda {day}',
+      monthly: 'Todo dia {day}',
+    },
+  },
   forms: {
     transaction: {
       category: 'Categoria',
@@ -177,6 +246,32 @@ export default {
       iconPlaceholder: 'Ex: 🏠, 🍔, 💰',
       iconHelp: 'Selecione um emoji para esta categoria',
       chooseEmoji: 'Escolher Emoji',
+    },
+    recurrent: {
+      // Form labels
+      frequency: 'Frequência',
+      dayOfWeek: 'Dia da Semana',
+      dayOfWeekPlaceholder: 'Selecione o dia da semana',
+      dayOfMonth: 'Dia do Mês',
+      dayOfMonthPlaceholder: 'Ex: 5, 15, 28',
+      dayOfMonthHelp: 'Para meses com menos dias, será usado o último dia do mês.',
+      startDate: 'Data de Início',
+      endDate: 'Data Final (Opcional)',
+      requiresApproval: 'Requer aprovação antes de criar transação',
+      active: 'Ativo',
+      // No category message
+      noCategoryAvailable: 'Nenhuma categoria de {type} disponível.',
+      // Validation errors
+      validation: {
+        amountRequired: 'O valor deve ser maior que zero',
+        categoryRequired: 'Selecione uma categoria',
+        frequencyRequired: 'Selecione a frequência',
+        dayOfWeekRequired: 'Selecione o dia da semana',
+        dayOfMonthRequired: 'Selecione o dia do mês',
+        dayOfMonthRange: 'Dia do mês deve estar entre 1 e 31',
+        startDateRequired: 'Selecione a data de início',
+        endDateInvalid: 'A data final deve ser posterior à data inicial',
+      },
     },
   },
 }

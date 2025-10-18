@@ -6,8 +6,10 @@ import RecurrentTransactionCard from '@/components/recurrent/RecurrentTransactio
 import RecurrentTransactionForm from '@/components/forms/RecurrentTransactionForm.vue'
 import { useRecurrentTransactionsStore } from '@/stores/recurrentTransactions'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from '@/composables/useI18n'
 import type { RecurrentTransactionInsert } from '@/types/database'
 
+const { t } = useI18n()
 const recurrentStore = useRecurrentTransactionsStore()
 const authStore = useAuthStore()
 
@@ -103,20 +105,20 @@ function handleCancel() {
 <template>
   <AppLayout>
     <PageHeader
-      title="Transações Recorrentes"
-      subtitle="Gerencie suas transações que se repetem automaticamente"
-      :action-label="showForm ? undefined : 'Nova Transação Recorrente'"
+      :title="t('recurrent.title')"
+      :subtitle="t('recurrent.subtitle')"
+      :action-label="showForm ? undefined : t('recurrent.addRecurrent')"
       @action="handleAdd"
     />
 
     <!-- Form Modal/Section -->
     <div v-if="showForm" class="card p-6 mb-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">
-        {{ editingId ? 'Editar Transação Recorrente' : 'Nova Transação Recorrente' }}
+        {{ editingId ? t('recurrent.editRecurrent') : t('recurrent.addRecurrent') }}
       </h3>
       <RecurrentTransactionForm
         :initial-data="editingTransaction || undefined"
-        :submit-label="editingId ? 'Atualizar' : 'Criar'"
+        :submit-label="editingId ? t('common.update') : t('common.create')"
         @submit="handleSubmit"
         @cancel="handleCancel"
       />
@@ -124,13 +126,13 @@ function handleCancel() {
 
     <!-- Loading State -->
     <div v-if="recurrentStore.loading && recurrentTransactions.length === 0" class="text-center py-12">
-      <p class="text-gray-500">Carregando transações recorrentes...</p>
+      <p class="text-gray-500">{{ t('recurrent.loadingRecurrent') }}</p>
     </div>
 
     <!-- Empty State -->
     <EmptyState
       v-else-if="!showForm && recurrentTransactions.length === 0"
-      message="Nenhuma transação recorrente cadastrada."
+      :message="t('recurrent.noRecurrent')"
     />
 
     <!-- Recurrent Transactions List -->
@@ -152,12 +154,12 @@ function handleCancel() {
       @click.self="cancelDelete"
     >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ t('recurrent.deleteTitle') }}</h3>
         <p class="text-gray-600 mb-4">
-          Tem certeza que deseja excluir esta transação recorrente? Esta ação não pode ser desfeita.
+          {{ t('recurrent.deleteConfirmation') }}
         </p>
         <p class="text-sm text-amber-600 mb-6">
-          Nota: As transações já criadas a partir desta recorrência não serão excluídas.
+          {{ t('recurrent.deleteWarning') }}
         </p>
         <div class="flex gap-3">
           <button
@@ -165,14 +167,14 @@ function handleCancel() {
             class="btn bg-red-600 text-white hover:bg-red-700 flex-1"
             :disabled="recurrentStore.loading"
           >
-            Excluir
+            {{ t('common.delete') }}
           </button>
           <button
             @click="cancelDelete"
             class="btn btn-secondary flex-1"
             :disabled="recurrentStore.loading"
           >
-            Cancelar
+            {{ t('common.cancel') }}
           </button>
         </div>
       </div>

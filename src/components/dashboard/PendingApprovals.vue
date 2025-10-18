@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useRecurrentTransactionsStore } from '@/stores/recurrentTransactions'
+import { useI18n } from '@/composables/useI18n'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
+const { t } = useI18n()
 const recurrentStore = useRecurrentTransactionsStore()
 
 // Fetch pending approvals on mount
@@ -43,7 +45,7 @@ function formatCurrency(amount: number): string {
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-lg font-semibold text-amber-900 flex items-center gap-2">
         <span>🔔</span>
-        Transações Pendentes de Aprovação
+        {{ t('recurrent.pendingApprovalsTitle') }}
         <span class="bg-amber-200 text-amber-900 text-sm px-2 py-0.5 rounded-full">
           {{ pendingApprovals.length }}
         </span>
@@ -66,7 +68,7 @@ function formatCurrency(amount: number): string {
                 {{ approval.recurrent_transaction.category.icon }}
               </span>
               <h4 class="font-medium text-gray-900">
-                {{ approval.recurrent_transaction?.category?.name || 'Sem categoria' }}
+                {{ approval.recurrent_transaction?.category?.name || t('common.uncategorized') }}
               </h4>
             </div>
 
@@ -83,7 +85,7 @@ function formatCurrency(amount: number): string {
                   {{ formatCurrency(approval.recurrent_transaction?.amount || 0) }}
                 </span>
                 <span>
-                  Data: {{ format(parseISO(approval.scheduled_date), 'dd/MM/yyyy', { locale: ptBR }) }}
+                  {{ t('recurrent.scheduledFor', { date: format(parseISO(approval.scheduled_date), 'dd/MM/yyyy', { locale: ptBR }) }) }}
                 </span>
               </div>
             </div>
@@ -95,14 +97,14 @@ function formatCurrency(amount: number): string {
               class="px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors"
               :disabled="recurrentStore.loading"
             >
-              ✓ Aprovar
+              {{ t('recurrent.approveButton') }}
             </button>
             <button
               @click="handleReject(approval.id)"
               class="px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
               :disabled="recurrentStore.loading"
             >
-              ✕ Rejeitar
+              {{ t('recurrent.rejectButton') }}
             </button>
           </div>
         </div>

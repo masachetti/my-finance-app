@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useRecurrentTransactionsStore } from '@/stores/recurrentTransactions'
+import { useI18n } from '@/composables/useI18n'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
+const { t } = useI18n()
 const recurrentStore = useRecurrentTransactionsStore()
 const router = useRouter()
 
@@ -32,12 +34,12 @@ function goToRecurrentTransactions() {
 <template>
   <div v-if="upcomingTransactions.length > 0" class="card p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-bold text-gray-900">Próximas Transações Recorrentes</h2>
+      <h2 class="text-xl font-bold text-gray-900">{{ t('recurrent.upcomingTitle') }}</h2>
       <button
         @click="goToRecurrentTransactions"
         class="text-primary-600 hover:text-primary-700 text-sm font-medium"
       >
-        Ver todas →
+        {{ t('recurrent.viewAll') }}
       </button>
     </div>
 
@@ -45,11 +47,11 @@ function goToRecurrentTransactions() {
       <table class="w-full">
         <thead>
           <tr class="border-b border-gray-200">
-            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">Data</th>
-            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">Categoria</th>
-            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">Descrição</th>
-            <th class="text-right py-2 px-2 text-sm font-semibold text-gray-700">Valor</th>
-            <th class="text-center py-2 px-2 text-sm font-semibold text-gray-700">Status</th>
+            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">{{ t('recurrent.tableDate') }}</th>
+            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">{{ t('recurrent.tableCategory') }}</th>
+            <th class="text-left py-2 px-2 text-sm font-semibold text-gray-700">{{ t('recurrent.tableDescription') }}</th>
+            <th class="text-right py-2 px-2 text-sm font-semibold text-gray-700">{{ t('recurrent.tableAmount') }}</th>
+            <th class="text-center py-2 px-2 text-sm font-semibold text-gray-700">{{ t('recurrent.tableStatus') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -64,11 +66,11 @@ function goToRecurrentTransactions() {
             <td class="py-3 px-2 text-sm">
               <div class="flex items-center gap-2">
                 <span v-if="transaction.category">{{ transaction.category.icon }}</span>
-                <span class="text-gray-900">{{ transaction.category?.name || 'Sem categoria' }}</span>
+                <span class="text-gray-900">{{ transaction.category?.name || t('common.uncategorized') }}</span>
               </div>
             </td>
             <td class="py-3 px-2 text-sm text-gray-600">
-              {{ transaction.description || '-' }}
+              {{ transaction.description || t('common.noDescription') }}
             </td>
             <td
               class="py-3 px-2 text-sm text-right font-medium"
@@ -80,14 +82,14 @@ function goToRecurrentTransactions() {
               <span
                 v-if="transaction.requiresApproval"
                 class="inline-block px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full"
-                title="Requer aprovação"
+                :title="t('recurrent.requiresApprovalLabel')"
               >
                 🔔
               </span>
               <span
                 v-else
                 class="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
-                title="Automático"
+                :title="t('recurrent.automaticLabel')"
               >
                 ✓
               </span>

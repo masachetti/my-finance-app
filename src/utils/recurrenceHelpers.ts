@@ -1,32 +1,39 @@
 import type { RecurrentTransaction } from '@/types/database'
 
 /**
+ * Translation function type
+ */
+type TranslateFn = (key: string, params?: Record<string, any>) => string
+
+/**
  * Format recurrence frequency as human-readable string
  */
 export function formatRecurrenceFrequency(
   recurrence: RecurrentTransaction,
-  locale: string = 'pt-BR'
+  t: TranslateFn
 ): string {
   const { frequency, day_of_week, day_of_month } = recurrence
 
   switch (frequency) {
     case 'daily':
-      return locale === 'pt-BR' ? 'Diariamente' : 'Daily'
+      return t('recurrent.frequencyFormat.daily')
 
     case 'weekly': {
-      const dayNames =
-        locale === 'pt-BR'
-          ? ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-          : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-      const dayName = dayNames[day_of_week!]
-      return locale === 'pt-BR' ? `Toda ${dayName}` : `Every ${dayName}`
+      const dayKeys = [
+        'recurrent.days.sunday',
+        'recurrent.days.monday',
+        'recurrent.days.tuesday',
+        'recurrent.days.wednesday',
+        'recurrent.days.thursday',
+        'recurrent.days.friday',
+        'recurrent.days.saturday',
+      ]
+      const dayName = t(dayKeys[day_of_week!])
+      return t('recurrent.frequencyFormat.weekly', { day: dayName })
     }
 
     case 'monthly': {
-      const daySuffix = locale === 'pt-BR' ? '' : getOrdinalSuffix(day_of_month!)
-      return locale === 'pt-BR'
-        ? `Todo dia ${day_of_month}`
-        : `Every ${day_of_month}${daySuffix} of the month`
+      return t('recurrent.frequencyFormat.monthly', { day: day_of_month })
     }
 
     default:
@@ -35,102 +42,88 @@ export function formatRecurrenceFrequency(
 }
 
 /**
- * Get ordinal suffix for a number (1st, 2nd, 3rd, etc.)
- */
-function getOrdinalSuffix(day: number): string {
-  if (day >= 11 && day <= 13) return 'th'
-  switch (day % 10) {
-    case 1:
-      return 'st'
-    case 2:
-      return 'nd'
-    case 3:
-      return 'rd'
-    default:
-      return 'th'
-  }
-}
-
-/**
  * Get day of week names for locale
  */
-export function getDayOfWeekNames(locale: string = 'pt-BR'): string[] {
-  return locale === 'pt-BR'
-    ? ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-    : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+export function getDayOfWeekNames(t: TranslateFn): string[] {
+  return [
+    t('recurrent.days.sunday'),
+    t('recurrent.days.monday'),
+    t('recurrent.days.tuesday'),
+    t('recurrent.days.wednesday'),
+    t('recurrent.days.thursday'),
+    t('recurrent.days.friday'),
+    t('recurrent.days.saturday'),
+  ]
 }
 
 /**
  * Get frequency options for dropdown
  */
-export function getFrequencyOptions(locale: string = 'pt-BR') {
-  return locale === 'pt-BR'
-    ? [
-        { value: 'daily', label: 'Diariamente' },
-        { value: 'weekly', label: 'Semanalmente' },
-        { value: 'monthly', label: 'Mensalmente' }
-      ]
-    : [
-        { value: 'daily', label: 'Daily' },
-        { value: 'weekly', label: 'Weekly' },
-        { value: 'monthly', label: 'Monthly' }
-      ]
+export function getFrequencyOptions(t: TranslateFn) {
+  return [
+    { value: 'daily', label: t('recurrent.frequency.daily') },
+    { value: 'weekly', label: t('recurrent.frequency.weekly') },
+    { value: 'monthly', label: t('recurrent.frequency.monthly') },
+  ]
 }
 
 /**
  * Validate recurrent transaction data
  */
-export function validateRecurrentTransaction(data: {
-  amount?: number
-  frequency?: string
-  day_of_week?: number | null
-  day_of_month?: number | null
-  start_date?: string
-  end_date?: string | null
-  category_id?: string | null
-}): { valid: boolean; errors: string[] } {
+export function validateRecurrentTransaction(
+  data: {
+    amount?: number
+    frequency?: string
+    day_of_week?: number | null
+    day_of_month?: number | null
+    start_date?: string
+    end_date?: string | null
+    category_id?: string | null
+  },
+  t: TranslateFn
+): { valid: boolean; errors: string[] } {
   const errors: string[] = []
 
   if (!data.amount || data.amount <= 0) {
-    errors.push('O valor deve ser maior que zero')
+    errors.push(t('forms.recurrent.validation.amountRequired'))
   }
 
   if (!data.category_id) {
-    errors.push('Selecione uma categoria')
+    errors.push(t('forms.recurrent.validation.categoryRequired'))
   }
 
   if (!data.frequency) {
-    errors.push('Selecione a frequência')
+    errors.push(t('forms.recurrent.validation.frequencyRequired'))
   }
 
   if (data.frequency === 'weekly' && data.day_of_week == null) {
-    errors.push('Selecione o dia da semana')
+    errors.push(t('forms.recurrent.validation.dayOfWeekRequired'))
   }
 
   if (data.frequency === 'monthly' && data.day_of_month == null) {
-    errors.push('Selecione o dia do mês')
+    errors.push(t('forms.recurrent.validation.dayOfMonthRequired'))
   }
 
   if (data.frequency === 'monthly' && data.day_of_month) {
     if (data.day_of_month < 1 || data.day_of_month > 31) {
-      errors.push('Dia do mês deve estar entre 1 e 31')
+      errors.push(t('forms.recurrent.validation.dayOfMonthRange'))
     }
   }
 
   if (!data.start_date) {
-    errors.push('Selecione a data de início')
+    errors.push(t('forms.recurrent.validation.startDateRequired'))
   }
 
   if (data.start_date && data.end_date) {
     const startDate = new Date(data.start_date)
     const endDate = new Date(data.end_date)
     if (endDate < startDate) {
-      errors.push('A data final deve ser posterior à data inicial')
+      errors.push(t('forms.recurrent.validation.endDateInvalid'))
     }
   }
 
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   }
 }

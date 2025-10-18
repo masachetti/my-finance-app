@@ -4,6 +4,7 @@ import { formatRecurrenceFrequency } from '@/utils/recurrenceHelpers'
 import { RecurrenceService } from '@/services/recurrenceService'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useI18n } from '@/composables/useI18n'
 
 interface Props {
   recurrence: RecurrentTransactionWithCategory
@@ -17,15 +18,16 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
-const frequencyText = computed(() => formatRecurrenceFrequency(props.recurrence))
+const frequencyText = computed(() => formatRecurrenceFrequency(props.recurrence, t))
 
 const nextOccurrence = computed(() => {
   const dates = RecurrenceService.calculateNextOccurrences(props.recurrence, 1)
   if (dates.length > 0) {
     return format(dates[0], 'dd/MM/yyyy', { locale: ptBR })
   }
-  return 'N/A'
+  return t('recurrent.noNextDate')
 })
 
 const amountFormatted = computed(() => {
@@ -71,13 +73,13 @@ function handleToggleActive() {
           <div class="flex-1">
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-gray-900">
-                {{ recurrence.category?.name || 'Sem categoria' }}
+                {{ recurrence.category?.name || t('common.uncategorized') }}
               </h3>
               <span
                 v-if="!recurrence.is_active"
                 class="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded-full"
               >
-                Pausado
+                {{ t('recurrent.paused') }}
               </span>
             </div>
             <p v-if="recurrence.description" class="text-sm text-gray-600 mt-1">
@@ -94,15 +96,15 @@ function handleToggleActive() {
           </div>
           <div>{{ frequencyText }}</div>
           <div v-if="recurrence.requires_approval" class="text-amber-600">
-            🔔 Requer aprovação
+            🔔 {{ t('recurrent.requiresApproval') }}
           </div>
           <div class="text-gray-500">
-            Próxima: {{ nextOccurrence }}
+            {{ t('recurrent.nextOccurrence', { date: nextOccurrence }) }}
           </div>
         </div>
 
         <div v-if="recurrence.end_date" class="text-xs text-gray-500 mt-2">
-          Termina em: {{ format(parseISO(recurrence.end_date), 'dd/MM/yyyy', { locale: ptBR }) }}
+          {{ t('recurrent.endsOn', { date: format(parseISO(recurrence.end_date), 'dd/MM/yyyy', { locale: ptBR }) }) }}
         </div>
       </div>
 
@@ -110,23 +112,23 @@ function handleToggleActive() {
         <button
           @click="handleToggleActive"
           class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-          :title="recurrence.is_active ? 'Pausar' : 'Ativar'"
+          :title="recurrence.is_active ? t('recurrent.pauseTooltip') : t('recurrent.resumeTooltip')"
         >
-          {{ recurrence.is_active ? '⏸' : '▶' }}
+          {{ recurrence.is_active ? t('recurrent.pauseSymbol') : t('recurrent.resumeSymbol') }}
         </button>
         <button
           @click="handleEdit"
           class="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-          title="Editar"
+          :title="t('recurrent.editTooltip')"
         >
-          ✏️
+          {{ t('recurrent.editSymbol') }}
         </button>
         <button
           @click="handleDelete"
           class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          title="Excluir"
+          :title="t('recurrent.deleteTooltip')"
         >
-          🗑️
+          {{ t('recurrent.deleteSymbol') }}
         </button>
       </div>
     </div>

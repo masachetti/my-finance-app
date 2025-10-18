@@ -11,7 +11,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  submitLabel: 'Salvar',
+  submitLabel: '',
 })
 
 const emit = defineEmits<{
@@ -83,7 +83,7 @@ function validateForm(): boolean {
     day_of_month: formData.day_of_month ? parseInt(formData.day_of_month) : null,
     start_date: formData.start_date,
     end_date: formData.end_date || null,
-  })
+  }, t)
 
   errors.value = validation.errors
   return validation.valid
@@ -113,8 +113,9 @@ function handleCancel() {
   emit('cancel')
 }
 
-const frequencyOptions = getFrequencyOptions()
-const dayOfWeekNames = getDayOfWeekNames()
+const frequencyOptions = computed(() => getFrequencyOptions(t))
+const dayOfWeekNames = computed(() => getDayOfWeekNames(t))
+const submitButtonLabel = computed(() => props.submitLabel || t('common.save'))
 </script>
 
 <template>
@@ -170,7 +171,7 @@ const dayOfWeekNames = getDayOfWeekNames()
         </option>
       </select>
       <p v-if="availableCategories.length === 0" class="mt-1 text-sm text-amber-600">
-        Nenhuma categoria de {{ formData.type === 'income' ? 'receita' : 'despesa' }} disponível.
+        {{ t('forms.recurrent.noCategoryAvailable', { type: formData.type === 'income' ? t('forms.transaction.income').toLowerCase() : t('forms.transaction.expense').toLowerCase() }) }}
       </p>
     </div>
 
@@ -197,7 +198,7 @@ const dayOfWeekNames = getDayOfWeekNames()
     <!-- Frequency -->
     <div>
       <label for="frequency" class="block text-sm font-medium text-gray-700 mb-1">
-        Frequência <span class="text-red-500">*</span>
+        {{ t('forms.recurrent.frequency') }} <span class="text-red-500">*</span>
       </label>
       <select
         id="frequency"
@@ -214,7 +215,7 @@ const dayOfWeekNames = getDayOfWeekNames()
     <!-- Day of Week (for weekly) -->
     <div v-if="formData.frequency === 'weekly'">
       <label for="day_of_week" class="block text-sm font-medium text-gray-700 mb-1">
-        Dia da Semana <span class="text-red-500">*</span>
+        {{ t('forms.recurrent.dayOfWeek') }} <span class="text-red-500">*</span>
       </label>
       <select
         id="day_of_week"
@@ -222,7 +223,7 @@ const dayOfWeekNames = getDayOfWeekNames()
         class="input w-full"
         required
       >
-        <option :value="null" disabled>Selecione o dia da semana</option>
+        <option :value="null" disabled>{{ t('forms.recurrent.dayOfWeekPlaceholder') }}</option>
         <option v-for="(day, index) in dayOfWeekNames" :key="index" :value="index">
           {{ day }}
         </option>
@@ -232,7 +233,7 @@ const dayOfWeekNames = getDayOfWeekNames()
     <!-- Day of Month (for monthly) -->
     <div v-if="formData.frequency === 'monthly'">
       <label for="day_of_month" class="block text-sm font-medium text-gray-700 mb-1">
-        Dia do Mês <span class="text-red-500">*</span>
+        {{ t('forms.recurrent.dayOfMonth') }} <span class="text-red-500">*</span>
       </label>
       <input
         id="day_of_month"
@@ -241,25 +242,25 @@ const dayOfWeekNames = getDayOfWeekNames()
         min="1"
         max="31"
         class="input w-full"
-        placeholder="Ex: 5, 15, 28"
+        :placeholder="t('forms.recurrent.dayOfMonthPlaceholder')"
         required
       />
       <p class="mt-1 text-xs text-gray-500">
-        Para meses com menos dias, será usado o último dia do mês.
+        {{ t('forms.recurrent.dayOfMonthHelp') }}
       </p>
     </div>
 
     <!-- Start Date -->
     <DatePicker
       v-model="formData.start_date"
-      label="Data de Início"
+      :label="t('forms.recurrent.startDate')"
       :required="true"
     />
 
     <!-- End Date -->
     <DatePicker
       v-model="formData.end_date"
-      label="Data Final (Opcional)"
+      :label="t('forms.recurrent.endDate')"
       :required="false"
     />
 
@@ -286,7 +287,7 @@ const dayOfWeekNames = getDayOfWeekNames()
         class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
       />
       <label for="requires_approval" class="ml-2 block text-sm text-gray-700">
-        Requer aprovação antes de criar transação
+        {{ t('forms.recurrent.requiresApproval') }}
       </label>
     </div>
 
@@ -299,14 +300,14 @@ const dayOfWeekNames = getDayOfWeekNames()
         class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
       />
       <label for="is_active" class="ml-2 block text-sm text-gray-700">
-        Ativo
+        {{ t('forms.recurrent.active') }}
       </label>
     </div>
 
     <!-- Form Actions -->
     <div class="flex gap-3 pt-4">
       <button type="submit" class="btn btn-primary flex-1">
-        {{ submitLabel }}
+        {{ submitButtonLabel }}
       </button>
       <button type="button" @click="handleCancel" class="btn btn-secondary flex-1">
         {{ t('common.cancel') }}

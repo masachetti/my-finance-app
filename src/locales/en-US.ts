@@ -17,6 +17,7 @@ export default {
     transactions: 'Transactions',
     budgets: 'Budgets',
     categories: 'Categories',
+    recurrent: 'Recurring',
     logout: 'Logout',
   },
   auth: {
@@ -134,6 +135,74 @@ export default {
     editCategoryAriaLabel: 'Edit category',
     deleteCategoryAriaLabel: 'Delete category',
   },
+  recurrent: {
+    title: 'Recurring Transactions',
+    subtitle: 'Manage your automatically repeating transactions',
+    addRecurrent: 'New Recurring Transaction',
+    editRecurrent: 'Edit Recurring Transaction',
+    noRecurrent: 'No recurring transactions registered.',
+    loadingRecurrent: 'Loading recurring transactions...',
+    deleteTitle: 'Confirm Deletion',
+    deleteConfirmation:
+      'Are you sure you want to delete this recurring transaction? This action cannot be undone.',
+    deleteWarning:
+      'Note: Transactions already created from this recurrence will not be deleted.',
+    // Status labels
+    paused: 'Paused',
+    requiresApproval: 'Requires approval',
+    automatic: 'Automatic',
+    // Card labels
+    nextOccurrence: 'Next: {date}',
+    endsOn: 'Ends on: {date}',
+    noNextDate: 'N/A',
+    // Button titles (tooltips)
+    pauseTooltip: 'Pause',
+    resumeTooltip: 'Resume',
+    editTooltip: 'Edit',
+    deleteTooltip: 'Delete',
+    // Button symbols
+    pauseSymbol: '⏸',
+    resumeSymbol: '▶',
+    editSymbol: '✏️',
+    deleteSymbol: '🗑️',
+    // Dashboard - Upcoming recurring
+    upcomingTitle: 'Upcoming Recurring Transactions',
+    viewAll: 'View all →',
+    tableDate: 'Date',
+    tableCategory: 'Category',
+    tableDescription: 'Description',
+    tableAmount: 'Amount',
+    tableStatus: 'Status',
+    requiresApprovalLabel: 'Requires approval',
+    automaticLabel: 'Automatic',
+    // Dashboard - Pending approvals
+    pendingApprovalsTitle: 'Pending Approval Transactions',
+    approveButton: '✓ Approve',
+    rejectButton: '✕ Reject',
+    scheduledFor: 'Date: {date}',
+    // Day names (for formatRecurrenceFrequency)
+    days: {
+      sunday: 'Sunday',
+      monday: 'Monday',
+      tuesday: 'Tuesday',
+      wednesday: 'Wednesday',
+      thursday: 'Thursday',
+      friday: 'Friday',
+      saturday: 'Saturday',
+    },
+    // Frequency labels
+    frequency: {
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
+    },
+    // Frequency format strings
+    frequencyFormat: {
+      daily: 'Daily',
+      weekly: 'Every {day}',
+      monthly: 'Every day {day}',
+    },
+  },
   forms: {
     transaction: {
       category: 'Category',
@@ -175,6 +244,32 @@ export default {
       iconPlaceholder: 'Ex: 🏠, 🍔, 💰',
       iconHelp: 'Select an emoji for this category',
       chooseEmoji: 'Choose Emoji',
+    },
+    recurrent: {
+      // Form labels
+      frequency: 'Frequency',
+      dayOfWeek: 'Day of Week',
+      dayOfWeekPlaceholder: 'Select the day of the week',
+      dayOfMonth: 'Day of Month',
+      dayOfMonthPlaceholder: 'Ex: 5, 15, 28',
+      dayOfMonthHelp: 'For months with fewer days, the last day of the month will be used.',
+      startDate: 'Start Date',
+      endDate: 'End Date (Optional)',
+      requiresApproval: 'Requires approval before creating transaction',
+      active: 'Active',
+      // No category message
+      noCategoryAvailable: 'No {type} category available.',
+      // Validation errors
+      validation: {
+        amountRequired: 'Amount must be greater than zero',
+        categoryRequired: 'Select a category',
+        frequencyRequired: 'Select the frequency',
+        dayOfWeekRequired: 'Select the day of the week',
+        dayOfMonthRequired: 'Select the day of the month',
+        dayOfMonthRange: 'Day of month must be between 1 and 31',
+        startDateRequired: 'Select the start date',
+        endDateInvalid: 'End date must be after start date',
+      },
     },
   },
 }

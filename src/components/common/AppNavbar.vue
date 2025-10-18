@@ -17,7 +17,7 @@ const navItems = computed(() => [
   { name: t('nav.transactions'), path: '/transactions' },
   { name: t('nav.budgets'), path: '/budgets' },
   { name: t('nav.categories'), path: '/categories' },
-  { name: 'Recorrentes', path: '/recurrent-transactions', badge: recurrentStore.pendingCount },
+  { name: t('nav.recurrent'), path: '/recurrent-transactions', badge: recurrentStore.pendingCount },
 ])
 
 async function handleLogout() {
