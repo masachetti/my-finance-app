@@ -72,11 +72,7 @@ function clearEmoji() {
           </svg>
         </button>
       </div>
-      <button
-        type="button"
-        @click="togglePicker"
-        class="btn btn-secondary px-4 whitespace-nowrap"
-      >
+      <button type="button" @click="togglePicker" class="btn btn-secondary px-4 whitespace-nowrap">
         {{ showPicker ? 'Close' : 'Pick Emoji' }}
       </button>
     </div>
