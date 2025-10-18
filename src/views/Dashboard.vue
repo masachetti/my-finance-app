@@ -5,14 +5,20 @@ import AppLayout from '@/components/common/AppLayout.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import StatCard from '@/components/common/StatCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import PendingApprovals from '@/components/dashboard/PendingApprovals.vue'
+import UpcomingRecurring from '@/components/dashboard/UpcomingRecurring.vue'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
 import currency from 'currency.js'
 import { useI18n } from '@/composables/useI18n'
+import { useRecurrenceProcessor } from '@/composables/useRecurrenceProcessor'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const transactionsStore = useTransactionsStore()
+
+// Process recurrences automatically
+useRecurrenceProcessor()
 
 // Fetch transactions on mount
 onMounted(async () => {
@@ -68,6 +74,9 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
       :subtitle="`${t('dashboard.welcomeBack')}, ${authStore.user?.email}`"
     />
 
+    <!-- Pending Approvals -->
+    <PendingApprovals />
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <StatCard
         :label="t('dashboard.totalBalance')"
@@ -86,7 +95,10 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
       />
     </div>
 
-    <div class="card">
+    <!-- Upcoming Recurring Transactions -->
+    <UpcomingRecurring />
+
+    <div class="card mt-8">
       <h3 class="text-lg font-semibold mb-4">{{ t('dashboard.recentTransactions') }}</h3>
 
       <!-- Loading State -->

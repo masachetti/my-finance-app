@@ -33,6 +33,12 @@ const router = createRouter({
       name: 'categories',
       component: () => import('@/views/Categories.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/recurrent-transactions',
+      name: 'recurrent-transactions',
+      component: () => import('@/views/RecurrentTransactions.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

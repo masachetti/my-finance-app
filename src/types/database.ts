@@ -68,6 +68,7 @@ export interface Database {
           description: string | null
           date: string
           type: 'income' | 'expense'
+          recurrent_transaction_id: string | null
           created_at: string
           updated_at: string
         }
@@ -79,6 +80,7 @@ export interface Database {
           description?: string | null
           date: string
           type: 'income' | 'expense'
+          recurrent_transaction_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -90,6 +92,7 @@ export interface Database {
           description?: string | null
           date?: string
           type?: 'income' | 'expense'
+          recurrent_transaction_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -123,9 +126,128 @@ export interface Database {
           updated_at?: string
         }
       }
+      recurrent_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string | null
+          amount: number
+          description: string | null
+          type: 'income' | 'expense'
+          frequency: 'daily' | 'weekly' | 'monthly'
+          day_of_week: number | null
+          day_of_month: number | null
+          requires_approval: boolean
+          is_active: boolean
+          start_date: string
+          end_date: string | null
+          last_generated_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category_id?: string | null
+          amount: number
+          description?: string | null
+          type: 'income' | 'expense'
+          frequency: 'daily' | 'weekly' | 'monthly'
+          day_of_week?: number | null
+          day_of_month?: number | null
+          requires_approval?: boolean
+          is_active?: boolean
+          start_date: string
+          end_date?: string | null
+          last_generated_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string | null
+          amount?: number
+          description?: string | null
+          type?: 'income' | 'expense'
+          frequency?: 'daily' | 'weekly' | 'monthly'
+          day_of_week?: number | null
+          day_of_month?: number | null
+          requires_approval?: boolean
+          is_active?: boolean
+          start_date?: string
+          end_date?: string | null
+          last_generated_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      pending_recurrent_approvals: {
+        Row: {
+          id: string
+          user_id: string
+          recurrent_transaction_id: string
+          scheduled_date: string
+          is_approved: boolean | null
+          approved_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          recurrent_transaction_id: string
+          scheduled_date: string
+          is_approved?: boolean | null
+          approved_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          recurrent_transaction_id?: string
+          scheduled_date?: string
+          is_approved?: boolean | null
+          approved_at?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: Record<string, never>
   }
+}
+
+// Helper types for working with recurrent transactions
+export type RecurrentTransaction = Database['public']['Tables']['recurrent_transactions']['Row']
+export type RecurrentTransactionInsert =
+  Database['public']['Tables']['recurrent_transactions']['Insert']
+export type RecurrentTransactionUpdate =
+  Database['public']['Tables']['recurrent_transactions']['Update']
+
+export type PendingApproval = Database['public']['Tables']['pending_recurrent_approvals']['Row']
+export type PendingApprovalInsert =
+  Database['public']['Tables']['pending_recurrent_approvals']['Insert']
+export type PendingApprovalUpdate =
+  Database['public']['Tables']['pending_recurrent_approvals']['Update']
+
+// Type for recurrent transaction with category details
+export interface RecurrentTransactionWithCategory extends RecurrentTransaction {
+  category?: Database['public']['Tables']['categories']['Row']
+}
+
+// Type for pending approval with recurrent transaction and category details
+export interface PendingApprovalWithDetails extends PendingApproval {
+  recurrent_transaction?: RecurrentTransactionWithCategory
+}
+
+// Type for upcoming transaction display
+export interface UpcomingTransaction {
+  recurrentTransactionId: string
+  scheduledDate: string
+  amount: number
+  description: string | null
+  type: 'income' | 'expense'
+  category?: Database['public']['Tables']['categories']['Row']
+  requiresApproval: boolean
 }

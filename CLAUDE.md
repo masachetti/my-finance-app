@@ -24,6 +24,7 @@ npm run format       # Format code with Prettier
 ### Auto-Import System
 
 This project uses `unplugin-auto-import` and `unplugin-vue-components`:
+
 - Vue APIs (ref, computed, watch, etc.) are auto-imported - **no manual imports needed**
 - Vue Router composables (useRouter, useRoute) are auto-imported
 - Pinia composables (defineStore, storeToRefs) are auto-imported
@@ -56,6 +57,7 @@ import { supabase } from '@/lib/supabase'
 ```
 
 **Database Schema** (see `docs/supabase-schema.md` for detailed documentation):
+
 - `profiles` - User profile (user_id references auth.users)
 - `categories` - Income/expense categories (user_id scoped)
 - `transactions` - Financial records (user_id scoped)
@@ -68,6 +70,7 @@ import { supabase } from '@/lib/supabase'
 ### Environment Variables
 
 Required variables in `.env.local`:
+
 ```
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
@@ -87,6 +90,7 @@ This ensures data isolation without explicit user_id filtering in frontend queri
 ### Styling System
 
 Tailwind CSS with custom utility classes defined in `src/assets/main.css`:
+
 - `.btn`, `.btn-primary`, `.btn-secondary` - Button styles
 - `.card` - Card container
 - `.input` - Form input styling
@@ -98,6 +102,7 @@ Primary color customization: Edit `tailwind.config.js` → `theme.extend.colors.
 **IMPORTANT:** Always use reusable components for consistent UI patterns. All authenticated pages should use the AppLayout pattern.
 
 **Core Layout Components** (`src/components/common/`):
+
 - `AppLayout.vue` - Main layout wrapper with navbar and content area (use for all authenticated pages)
 - `AppNavbar.vue` - Navigation bar with active route detection and logout
 - `PageHeader.vue` - Page title, subtitle, and optional action button
@@ -105,6 +110,7 @@ Primary color customization: Edit `tailwind.config.js` → `theme.extend.colors.
 - `EmptyState.vue` - Reusable empty state message component
 
 **Example Page Structure:**
+
 ```vue
 <script setup lang="ts">
 import AppLayout from '@/components/common/AppLayout.vue'
@@ -133,6 +139,7 @@ function handleAction() {
 ### Path Aliases
 
 The `@` alias maps to `src/` directory:
+
 ```typescript
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
@@ -148,18 +155,23 @@ Configured in `vite.config.ts` and `tsconfig.app.json`.
 2. Use composition API pattern (return object with state/actions)
 3. Add persistence if needed:
    ```typescript
-   export const useMyStore = defineStore('my-store', () => {
-     // ... store logic
-   }, {
-     persist: {
-       paths: ['field1', 'field2'] // Optional: specify fields to persist
+   export const useMyStore = defineStore(
+     'my-store',
+     () => {
+       // ... store logic
+     },
+     {
+       persist: {
+         paths: ['field1', 'field2'], // Optional: specify fields to persist
+       },
      }
-   })
+   )
    ```
 
 ### Creating a New Route
 
 1. Add component in `src/views/[Name].vue` using the AppLayout pattern:
+
    ```vue
    <script setup lang="ts">
    import AppLayout from '@/components/common/AppLayout.vue'
@@ -175,6 +187,7 @@ Configured in `vite.config.ts` and `tsconfig.app.json`.
    ```
 
 2. Register in `src/router/index.ts`:
+
    ```typescript
    {
      path: '/my-route',
@@ -197,6 +210,7 @@ Configured in `vite.config.ts` and `tsconfig.app.json`.
 ### Working with Currency
 
 Use `currency.js` for precise financial calculations (already installed):
+
 ```typescript
 import currency from 'currency.js'
 const total = currency(amount1).add(amount2).value
@@ -207,6 +221,7 @@ const total = currency(amount1).add(amount2).value
 ### Working with Dates
 
 Use `date-fns` for date manipulation (already installed):
+
 ```typescript
 import { format, parseISO, subDays } from 'date-fns'
 const formatted = format(new Date(), 'yyyy-MM-dd')
@@ -238,6 +253,7 @@ const formatted = format(new Date(), 'yyyy-MM-dd')
 ### Environment Variables
 
 When deploying, ensure hosting platform has:
+
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 
@@ -250,6 +266,7 @@ When deploying, ensure hosting platform has:
 ### Supabase Configuration
 
 Before deployment:
+
 1. Run SQL scripts from `SUPABASE_SETUP.md` to create tables and RLS policies
 2. Configure authentication settings (disable email confirmation for single-user)
 3. Update Supabase Auth redirect URLs to include production domain
@@ -272,15 +289,13 @@ const { data, error } = await supabase
 
 ```typescript
 // Must include user_id from auth store
-const { data, error } = await supabase
-  .from('transactions')
-  .insert({
-    user_id: authStore.user!.id,
-    category_id: '...',
-    amount: 100,
-    date: '2024-01-01',
-    type: 'expense'
-  })
+const { data, error } = await supabase.from('transactions').insert({
+  user_id: authStore.user!.id,
+  category_id: '...',
+  amount: 100,
+  date: '2024-01-01',
+  type: 'expense',
+})
 ```
 
 ### Real-time Subscriptions
@@ -289,13 +304,10 @@ const { data, error } = await supabase
 // Subscribe to changes for authenticated user's data
 const subscription = supabase
   .channel('transactions')
-  .on('postgres_changes',
-    { event: '*', schema: 'public', table: 'transactions' },
-    (payload) => {
-      // RLS ensures you only receive your own data
-      console.log('Change:', payload)
-    }
-  )
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
+    // RLS ensures you only receive your own data
+    console.log('Change:', payload)
+  })
   .subscribe()
 
 // Remember to unsubscribe on component unmount
@@ -307,20 +319,24 @@ onUnmounted(() => {
 ## Troubleshooting
 
 ### "Missing Supabase environment variables" Error
+
 - Ensure `.env.local` exists and contains `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 - Environment files are not committed to git - copy from `.env.local.example`
 
 ### Authentication Issues
+
 - Check that auth store is initialized before routing
 - Verify Supabase Auth settings (email confirmation should be disabled for single-user)
 - Check browser console for Supabase auth errors
 
 ### Data Not Loading
+
 - Verify RLS policies are created in Supabase (see SUPABASE_SETUP.md)
 - Check that user is authenticated (inspect auth store state)
 - Look for Supabase errors in Network tab
 
 ### Type Errors
+
 - Run `npm run build` to see full TypeScript errors
 - Check that `src/types/database.ts` matches your Supabase schema
 - Ensure auto-import types are generated (`src/auto-imports.d.ts`)
@@ -342,3 +358,4 @@ onUnmounted(() => {
 - Do not co-author claude on commits
 - Use R$ for money
 - Use pt-BR locale for dates
+- Always use i18n and create both pt-BR and en strings

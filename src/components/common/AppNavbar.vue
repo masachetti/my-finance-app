@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore, type Locale } from '@/stores/locale'
+import { useRecurrentTransactionsStore } from '@/stores/recurrentTransactions'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const localeStore = useLocaleStore()
+const recurrentStore = useRecurrentTransactionsStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -15,6 +17,7 @@ const navItems = computed(() => [
   { name: t('nav.transactions'), path: '/transactions' },
   { name: t('nav.budgets'), path: '/budgets' },
   { name: t('nav.categories'), path: '/categories' },
+  { name: 'Recorrentes', path: '/recurrent-transactions', badge: recurrentStore.pendingCount },
 ])
 
 async function handleLogout() {
@@ -47,13 +50,19 @@ const currentLanguageLabel = computed(() => {
             :key="item.path"
             :to="item.path"
             :class="[
-              'px-3 py-2 rounded-md text-sm',
+              'px-3 py-2 rounded-md text-sm relative',
               isActive(item.path)
                 ? 'text-gray-900 font-semibold'
                 : 'text-gray-700 hover:text-gray-900 font-medium',
             ]"
           >
             {{ item.name }}
+            <span
+              v-if="item.badge && item.badge > 0"
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+            >
+              {{ item.badge }}
+            </span>
           </RouterLink>
           <button
             @click="toggleLanguage"
