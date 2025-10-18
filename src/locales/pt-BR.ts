@@ -20,6 +20,11 @@ export default {
     recurrent: 'Recorrentes',
     logout: 'Sair',
   },
+  notFound: {
+    title: 'Página Não Encontrada',
+    description: 'A página que você está procurando não existe ou foi movida.',
+    goHome: 'Voltar ao Início',
+  },
   auth: {
     login: {
       title: 'Meu App de Finanças',

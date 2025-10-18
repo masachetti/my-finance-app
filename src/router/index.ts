@@ -39,6 +39,11 @@ const router = createRouter({
       name: 'recurrent-transactions',
       component: () => import('@/views/RecurrentTransactions.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFound.vue')
     }
   ]
 })
