@@ -64,6 +64,7 @@ export interface Database {
           id: string
           user_id: string
           category_id: string
+          sub_category_id: string | null
           amount: number
           description: string | null
           date: string
@@ -76,6 +77,7 @@ export interface Database {
           id?: string
           user_id: string
           category_id: string
+          sub_category_id?: string | null
           amount: number
           description?: string | null
           date: string
@@ -88,6 +90,7 @@ export interface Database {
           id?: string
           user_id?: string
           category_id?: string
+          sub_category_id?: string | null
           amount?: number
           description?: string | null
           date?: string
@@ -122,6 +125,32 @@ export interface Database {
           category_id?: string
           amount?: number
           month?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      sub_categories: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string
+          name: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category_id: string
+          name: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string
+          name?: string
           created_at?: string
           updated_at?: string
         }
@@ -218,6 +247,11 @@ export interface Database {
   }
 }
 
+// Helper types for sub-categories
+export type SubCategory = Database['public']['Tables']['sub_categories']['Row']
+export type SubCategoryInsert = Database['public']['Tables']['sub_categories']['Insert']
+export type SubCategoryUpdate = Database['public']['Tables']['sub_categories']['Update']
+
 // Helper types for working with recurrent transactions
 export type RecurrentTransaction = Database['public']['Tables']['recurrent_transactions']['Row']
 export type RecurrentTransactionInsert =
@@ -250,4 +284,17 @@ export interface UpcomingTransaction {
   type: 'income' | 'expense'
   category?: Database['public']['Tables']['categories']['Row']
   requiresApproval: boolean
+}
+
+// Type for category with sub-categories
+export interface CategoryWithSubCategories
+  extends Database['public']['Tables']['categories']['Row'] {
+  sub_categories?: SubCategory[]
+}
+
+// Type for transaction with category and sub-category
+export interface TransactionWithDetails
+  extends Database['public']['Tables']['transactions']['Row'] {
+  categories?: Database['public']['Tables']['categories']['Row']
+  sub_categories?: SubCategory | null
 }

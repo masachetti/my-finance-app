@@ -3,12 +3,14 @@ import { useCategoriesStore } from '@/stores/categories'
 import { format } from 'date-fns'
 import type { Database } from '@/types/database'
 import { useI18n } from '@/composables/useI18n'
+import SubCategorySelect from './SubCategorySelect.vue'
 
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 
 interface Props {
   initialData?: {
     category_id?: string
+    sub_category_id?: string | null
     amount?: number
     description?: string | null
     date?: string
@@ -39,6 +41,7 @@ onMounted(async () => {
 // Form state
 const formData = reactive({
   category_id: props.initialData?.category_id || '',
+  sub_category_id: props.initialData?.sub_category_id || null,
   amount: props.initialData?.amount?.toString() || '',
   description: props.initialData?.description || '',
   date: props.initialData?.date || format(new Date(), 'yyyy-MM-dd'),
@@ -104,6 +107,7 @@ function handleSubmit() {
 
   emit('submit', {
     category_id: formData.category_id,
+    sub_category_id: formData.sub_category_id || null,
     amount: parseFloat(formData.amount),
     description: formData.description.trim() || null,
     date: formData.date,
@@ -169,6 +173,9 @@ function handleCancel() {
         No {{ formData.type }} categories available. Please create one first.
       </p>
     </div>
+
+    <!-- Sub-Category Selection -->
+    <SubCategorySelect v-model="formData.sub_category_id" :category-id="formData.category_id" />
 
     <!-- Amount -->
     <div>

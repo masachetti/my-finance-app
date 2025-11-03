@@ -2,16 +2,17 @@ import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from './auth'
 import currency from 'currency.js'
-import type { Database } from '@/types/database'
+import type { Database, SubCategory } from '@/types/database'
 
 type Transaction = Database['public']['Tables']['transactions']['Row']
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 type TransactionUpdate = Database['public']['Tables']['transactions']['Update']
 type Category = Database['public']['Tables']['categories']['Row']
 
-// Extended transaction with category details
+// Extended transaction with category and sub-category details
 export interface TransactionWithCategory extends Transaction {
   categories: Category | null
+  sub_categories?: SubCategory | null
 }
 
 export const useTransactionsStore = defineStore('transactions', () => {
@@ -57,7 +58,11 @@ export const useTransactionsStore = defineStore('transactions', () => {
     try {
       const { data, error: fetchError } = await supabase
         .from('transactions')
-        .select('*, categories(*)')
+        .select(`
+          *,
+          categories (*),
+          sub_categories (*)
+        `)
         .order('date', { ascending: false })
 
       if (fetchError) throw fetchError

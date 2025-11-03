@@ -48,6 +48,9 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
         <div class="flex-1 min-w-0">
           <p class="font-medium text-gray-900 truncate">
             {{ transaction.categories?.name || t('common.uncategorized') }}
+            <span v-if="transaction.sub_categories" class="text-gray-500 text-sm font-normal">
+              → {{ transaction.sub_categories.name }}
+            </span>
           </p>
           <p class="text-sm text-gray-600">
             {{ formatDate(transaction.date) }}

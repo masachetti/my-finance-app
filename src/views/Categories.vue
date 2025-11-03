@@ -4,6 +4,7 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import Modal from '@/components/common/Modal.vue'
 import CategoryForm from '@/components/forms/CategoryForm.vue'
+import SubCategoryManager from '@/components/categories/SubCategoryManager.vue'
 import { useCategoriesStore } from '@/stores/categories'
 import type { Database } from '@/types/database'
 import { useI18n } from '@/composables/useI18n'
@@ -19,6 +20,9 @@ const showModal = ref(false)
 const editingCategory = ref<Category | null>(null)
 const showDeleteConfirm = ref(false)
 const categoryToDelete = ref<Category | null>(null)
+
+// Expanded categories state (for showing sub-categories)
+const expandedCategories = ref<Set<string>>(new Set())
 
 // Load categories on mount
 onMounted(async () => {
@@ -77,6 +81,19 @@ async function handleDelete() {
   }
 }
 
+// Toggle category expansion
+function toggleCategory(categoryId: string) {
+  if (expandedCategories.value.has(categoryId)) {
+    expandedCategories.value.delete(categoryId)
+  } else {
+    expandedCategories.value.add(categoryId)
+  }
+}
+
+function isCategoryExpanded(categoryId: string) {
+  return expandedCategories.value.has(categoryId)
+}
+
 // Modal title
 const modalTitle = computed(() => {
   return editingCategory.value ? t('categories.editCategory') : t('categories.addCategory')
@@ -123,51 +140,71 @@ const submitLabel = computed(() => {
         />
 
         <div v-else class="space-y-2">
-          <div
-            v-for="category in categoriesStore.incomeCategories"
-            :key="category.id"
-            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div
-                class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
-                :style="{ backgroundColor: category.color }"
-              >
-                {{ category.icon || category.name.charAt(0).toUpperCase() }}
+          <div v-for="category in categoriesStore.incomeCategories" :key="category.id">
+            <div
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              @click="toggleCategory(category.id)"
+            >
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <button class="text-gray-500 hover:text-gray-700 flex-shrink-0">
+                  <svg
+                    class="w-4 h-4 transition-transform"
+                    :class="{ 'rotate-90': isCategoryExpanded(category.id) }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
+                  :style="{ backgroundColor: category.color }"
+                >
+                  {{ category.icon || category.name.charAt(0).toUpperCase() }}
+                </div>
+                <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
               </div>
-              <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
+
+              <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <button
+                  @click.stop="handleEditCategory(category)"
+                  class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
+                  :aria-label="t('categories.editCategoryAriaLabel')"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  @click.stop="confirmDelete(category)"
+                  class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
+                  :aria-label="t('categories.deleteCategoryAriaLabel')"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <button
-                @click="handleEditCategory(category)"
-                class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
-                :aria-label="t('categories.editCategoryAriaLabel')"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </button>
-              <button
-                @click="confirmDelete(category)"
-                class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
-                :aria-label="t('categories.deleteCategoryAriaLabel')"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-            </div>
+            <!-- Sub-categories -->
+            <SubCategoryManager v-if="isCategoryExpanded(category.id)" :category-id="category.id" />
           </div>
         </div>
       </div>
@@ -184,51 +221,71 @@ const submitLabel = computed(() => {
         />
 
         <div v-else class="space-y-2">
-          <div
-            v-for="category in categoriesStore.expenseCategories"
-            :key="category.id"
-            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div
-                class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
-                :style="{ backgroundColor: category.color }"
-              >
-                {{ category.icon || category.name.charAt(0).toUpperCase() }}
+          <div v-for="category in categoriesStore.expenseCategories" :key="category.id">
+            <div
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              @click="toggleCategory(category.id)"
+            >
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <button class="text-gray-500 hover:text-gray-700 flex-shrink-0">
+                  <svg
+                    class="w-4 h-4 transition-transform"
+                    :class="{ 'rotate-90': isCategoryExpanded(category.id) }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold"
+                  :style="{ backgroundColor: category.color }"
+                >
+                  {{ category.icon || category.name.charAt(0).toUpperCase() }}
+                </div>
+                <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
               </div>
-              <span class="font-medium text-gray-900 truncate">{{ category.name }}</span>
+
+              <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <button
+                  @click.stop="handleEditCategory(category)"
+                  class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
+                  :aria-label="t('categories.editCategoryAriaLabel')"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  @click.stop="confirmDelete(category)"
+                  class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
+                  :aria-label="t('categories.deleteCategoryAriaLabel')"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-              <button
-                @click="handleEditCategory(category)"
-                class="p-2 text-gray-600 hover:text-primary-600 transition-colors rounded-lg hover:bg-white"
-                :aria-label="t('categories.editCategoryAriaLabel')"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </button>
-              <button
-                @click="confirmDelete(category)"
-                class="p-2 text-gray-600 hover:text-red-600 transition-colors rounded-lg hover:bg-white"
-                :aria-label="t('categories.deleteCategoryAriaLabel')"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-            </div>
+            <!-- Sub-categories -->
+            <SubCategoryManager v-if="isCategoryExpanded(category.id)" :category-id="category.id" />
           </div>
         </div>
       </div>

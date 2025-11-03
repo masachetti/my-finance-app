@@ -1,15 +1,16 @@
 # Supabase Database Schema
 
-**Last Updated:** 2025-10-17
-**Schema Version:** 1.0.0
+**Last Updated:** 2025-11-03
+**Schema Version:** 1.1.0
 
 This document describes the current database schema for the My Finance App. All tables use Row Level Security (RLS) to ensure single-user data isolation.
 
 ## Overview
 
-The database consists of 4 main tables:
+The database consists of 5 main tables:
 - `profiles` - User profile information
 - `categories` - Income/expense categories
+- `sub_categories` - Sub-categories for granular transaction classification
 - `transactions` - Financial transaction records
 - `budgets` - Monthly budget limits
 
@@ -74,6 +75,41 @@ Stores transaction categories (both income and expense).
 
 ---
 
+### `sub_categories`
+
+Stores optional sub-categories for more granular transaction classification. Sub-categories inherit the type (income/expense) from their parent category.
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY, DEFAULT uuid_generate_v4() | Unique sub-category ID |
+| `user_id` | UUID | REFERENCES auth.users(id) ON DELETE CASCADE, NOT NULL | Reference to authenticated user |
+| `category_id` | UUID | REFERENCES categories(id) ON DELETE CASCADE, NOT NULL | Reference to parent category |
+| `name` | TEXT | NOT NULL | Sub-category name |
+| `created_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Sub-category creation timestamp |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Last update timestamp |
+
+**Indexes:**
+- Primary key on `id`
+- Index on `user_id` for filtering
+- Index on `category_id` for filtering
+- Composite index on `(user_id, category_id)` for efficient lookups
+- Unique constraint on `(user_id, category_id, name)` to prevent duplicate sub-category names
+
+**RLS Policies:**
+- `Users can view their own sub-categories` - SELECT WHERE auth.uid() = user_id
+- `Users can insert their own sub-categories` - INSERT WITH CHECK auth.uid() = user_id
+- `Users can update their own sub-categories` - UPDATE WHERE auth.uid() = user_id
+- `Users can delete their own sub-categories` - DELETE WHERE auth.uid() = user_id
+
+**Important Notes:**
+- Sub-categories are **optional** for transactions
+- Unique constraint prevents duplicate sub-category names within the same category
+- Sub-category names CAN be duplicated across different categories
+- `category_id` uses ON DELETE CASCADE so sub-category is removed if parent category is deleted
+- Transactions keep their parent category when a sub-category is deleted (ON DELETE SET NULL)
+
+---
+
 ### `transactions`
 
 Stores all financial transactions (income and expenses).
@@ -83,6 +119,7 @@ Stores all financial transactions (income and expenses).
 | `id` | UUID | PRIMARY KEY, DEFAULT uuid_generate_v4() | Unique transaction ID |
 | `user_id` | UUID | REFERENCES auth.users(id) ON DELETE CASCADE, NOT NULL | Reference to authenticated user |
 | `category_id` | UUID | REFERENCES categories(id) ON DELETE SET NULL | Reference to category |
+| `sub_category_id` | UUID | REFERENCES sub_categories(id) ON DELETE SET NULL, NULL | Optional reference to sub-category |
 | `amount` | DECIMAL(12, 2) | NOT NULL | Transaction amount (positive value) |
 | `description` | TEXT | NULL | Optional transaction description |
 | `date` | DATE | NOT NULL | Transaction date |
@@ -94,6 +131,7 @@ Stores all financial transactions (income and expenses).
 - Primary key on `id`
 - Index on `user_id` for filtering
 - Index on `date` for date range queries
+- Index on `sub_category_id` for joins and filtering
 - Suggested: Composite index on `(user_id, date DESC)` for dashboard queries
 
 **RLS Policies:**
@@ -106,6 +144,8 @@ Stores all financial transactions (income and expenses).
 - `amount` is always stored as a positive DECIMAL(12,2) value
 - Use `currency.js` library for all amount calculations to avoid floating-point errors
 - `category_id` uses ON DELETE SET NULL to preserve transaction history if category is deleted
+- `sub_category_id` is **optional** and uses ON DELETE SET NULL to preserve transaction history
+- A validation trigger ensures sub-category belongs to the same category and user
 
 ---
 
@@ -149,6 +189,7 @@ Automatically updates the `updated_at` timestamp on row updates.
 
 **Applied to:**
 - `profiles` table
+- `sub_categories` table
 - `transactions` table
 - `budgets` table
 
@@ -163,6 +204,34 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
+### `validate_transaction_sub_category()`
+
+Validates that a sub-category belongs to the selected category and user before insert/update.
+
+**Applied to:**
+- `transactions` table (BEFORE INSERT OR UPDATE)
+
+**Trigger Definition:**
+```sql
+CREATE OR REPLACE FUNCTION validate_transaction_sub_category()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.sub_category_id IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1
+      FROM sub_categories
+      WHERE id = NEW.sub_category_id
+        AND category_id = NEW.category_id
+        AND user_id = NEW.user_id
+    ) THEN
+      RAISE EXCEPTION 'Sub-category must belong to the selected category and user';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
 ---
 
 ## Common Query Patterns
@@ -172,7 +241,11 @@ $$ LANGUAGE plpgsql;
 // RLS automatically filters by auth.uid()
 const { data, error } = await supabase
   .from('transactions')
-  .select('*, categories(*)')
+  .select(`
+    *,
+    categories (*),
+    sub_categories (*)
+  `)
   .order('date', { ascending: false })
 ```
 
@@ -183,11 +256,23 @@ const { data, error } = await supabase
   .insert({
     user_id: authStore.user!.id,
     category_id: categoryId,
+    sub_category_id: subCategoryId || null, // Optional
     amount: 100.50,
     description: 'Grocery shopping',
     date: '2024-01-15',
     type: 'expense'
   })
+```
+
+### Fetching Categories with Sub-Categories
+```typescript
+const { data, error } = await supabase
+  .from('categories')
+  .select(`
+    *,
+    sub_categories (*)
+  `)
+  .order('name')
 ```
 
 ### Monthly Budget Summary
@@ -201,6 +286,14 @@ const { data, error } = await supabase
 ---
 
 ## Migration History
+
+### Version 1.1.0 (2025-11-03)
+- Added `sub_categories` table for granular transaction classification
+- Added `sub_category_id` column to `transactions` table
+- Implemented RLS policies for sub-categories
+- Added `validate_transaction_sub_category()` trigger for data integrity
+- Created indexes on `sub_category_id` for performance
+- Updated query patterns to include sub-categories
 
 ### Version 1.0.0 (2025-10-17)
 - Initial schema creation
@@ -226,5 +319,7 @@ When modifying the schema:
 ## See Also
 
 - [SUPABASE_SETUP.md](../SUPABASE_SETUP.md) - Full Supabase setup instructions with SQL scripts
+- [docs/sub-categories-supabase.md](sub-categories-supabase.md) - Sub-categories migration guide with SQL scripts
+- [docs/sub-categories.md](sub-categories.md) - Sub-categories feature planning and implementation guide
 - [src/types/database.ts](../src/types/database.ts) - TypeScript type definitions
 - [CLAUDE.md](../CLAUDE.md) - Development guidelines and architecture

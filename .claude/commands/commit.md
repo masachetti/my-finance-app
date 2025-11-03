@@ -1,7 +1,6 @@
 ---
 description: Generate a Conventional Commits–style message from the current git diff using our team spec, then commit and push
 argument-hint: '[optional summary or scope]'
-model: claude-3-5-sonnet-20241022
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*)
 ---
 

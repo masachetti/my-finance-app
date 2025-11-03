@@ -260,9 +260,14 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                         transaction.categories.name.charAt(0).toUpperCase()
                       }}
                     </div>
-                    <span class="text-gray-900">
-                      {{ transaction.categories?.name || t('common.uncategorized') }}
-                    </span>
+                    <div class="flex flex-col">
+                      <span class="text-gray-900">
+                        {{ transaction.categories?.name || t('common.uncategorized') }}
+                      </span>
+                      <span v-if="transaction.sub_categories" class="text-xs text-gray-500">
+                        → {{ transaction.sub_categories.name }}
+                      </span>
+                    </div>
                   </div>
                 </td>
 
@@ -343,6 +348,7 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
           editingTransaction
             ? {
                 category_id: editingTransaction.category_id,
+                sub_category_id: editingTransaction.sub_category_id,
                 amount: editingTransaction.amount,
                 description: editingTransaction.description,
                 date: editingTransaction.date,
