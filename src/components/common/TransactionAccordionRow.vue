@@ -55,6 +55,21 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
           <p class="text-sm text-gray-600">
             {{ formatDate(transaction.date) }}
           </p>
+          <!-- Event Badge -->
+          <div v-if="transaction.events" class="mt-1">
+            <router-link
+              :to="{ name: 'event-details', params: { id: transaction.event_id } }"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80"
+              :style="{
+                backgroundColor: transaction.events.color + '20',
+                color: transaction.events.color,
+              }"
+              @click.stop
+            >
+              <span v-if="transaction.events.icon">{{ transaction.events.icon }}</span>
+              <span>{{ transaction.events.name }}</span>
+            </router-link>
+          </div>
         </div>
       </div>
 
@@ -94,6 +109,27 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
             {{ t('transactions.description') }}
           </p>
           <p class="text-gray-900">{{ transaction.description }}</p>
+        </div>
+
+        <!-- Event (in expanded view) -->
+        <div v-if="transaction.events">
+          <p class="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
+            {{ t('transactions.event') }}
+          </p>
+          <router-link
+            :to="{ name: 'event-details', params: { id: transaction.event_id } }"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-80"
+            :style="{
+              backgroundColor: transaction.events.color + '20',
+              color: transaction.events.color,
+            }"
+            @click.stop
+          >
+            <span v-if="transaction.events.icon" class="text-base">{{
+              transaction.events.icon
+            }}</span>
+            <span>{{ transaction.events.name }}</span>
+          </router-link>
         </div>
 
         <!-- Type Badge -->

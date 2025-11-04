@@ -1,18 +1,19 @@
 # Supabase Database Schema
 
-**Last Updated:** 2025-11-03
-**Schema Version:** 1.1.0
+**Last Updated:** 2025-11-04
+**Schema Version:** 1.2.0
 
 This document describes the current database schema for the My Finance App. All tables use Row Level Security (RLS) to ensure single-user data isolation.
 
 ## Overview
 
-The database consists of 5 main tables:
+The database consists of 6 main tables:
 - `profiles` - User profile information
 - `categories` - Income/expense categories
 - `sub_categories` - Sub-categories for granular transaction classification
 - `transactions` - Financial transaction records
 - `budgets` - Monthly budget limits
+- `events` - Event grouping for transactions (trips, projects, etc.)
 
 ## Security Model
 
@@ -124,6 +125,8 @@ Stores all financial transactions (income and expenses).
 | `description` | TEXT | NULL | Optional transaction description |
 | `date` | DATE | NOT NULL | Transaction date |
 | `type` | TEXT | NOT NULL, CHECK (type IN ('income', 'expense')) | Transaction type |
+| `event_id` | UUID | REFERENCES events(id) ON DELETE SET NULL, NULL | Optional reference to event |
+| `recurrent_transaction_id` | UUID | REFERENCES recurrent_transactions(id) ON DELETE SET NULL, NULL | Optional reference to recurrent transaction |
 | `created_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Record creation timestamp |
 | `updated_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Last update timestamp |
 
@@ -132,6 +135,7 @@ Stores all financial transactions (income and expenses).
 - Index on `user_id` for filtering
 - Index on `date` for date range queries
 - Index on `sub_category_id` for joins and filtering
+- Index on `event_id` for joins and filtering
 - Suggested: Composite index on `(user_id, date DESC)` for dashboard queries
 
 **RLS Policies:**
@@ -145,7 +149,9 @@ Stores all financial transactions (income and expenses).
 - Use `currency.js` library for all amount calculations to avoid floating-point errors
 - `category_id` uses ON DELETE SET NULL to preserve transaction history if category is deleted
 - `sub_category_id` is **optional** and uses ON DELETE SET NULL to preserve transaction history
+- `event_id` is **optional** and uses ON DELETE SET NULL to preserve transaction history if event is deleted
 - A validation trigger ensures sub-category belongs to the same category and user
+- A validation trigger ensures event belongs to the same user
 
 ---
 
@@ -181,6 +187,45 @@ Stores monthly budget limits per category.
 
 ---
 
+### `events`
+
+Stores events for grouping related transactions (e.g., trips, projects, special occasions).
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY, DEFAULT uuid_generate_v4() | Unique event ID |
+| `user_id` | UUID | REFERENCES auth.users(id) ON DELETE CASCADE, NOT NULL | Reference to authenticated user |
+| `name` | TEXT | NOT NULL | Event name (e.g., "Trip to Paris") |
+| `description` | TEXT | NULL | Optional detailed description |
+| `start_date` | DATE | NOT NULL | Event start date |
+| `end_date` | DATE | NULL | Event end date (NULL for open-ended events) |
+| `color` | TEXT | NOT NULL, DEFAULT '#3B82F6' | Hex color code for UI display |
+| `icon` | TEXT | NULL | Optional icon/emoji identifier |
+| `created_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Event creation timestamp |
+| `updated_at` | TIMESTAMP WITH TIME ZONE | DEFAULT NOW() | Last update timestamp |
+
+**Indexes:**
+- Primary key on `id`
+- Index on `user_id` for filtering
+- Index on `start_date` for date range queries
+- Index on `end_date` for filtering active/completed events
+- Composite index on `(user_id, start_date, end_date)` for user-specific date range queries
+
+**RLS Policies:**
+- `Users can view their own events` - SELECT WHERE auth.uid() = user_id
+- `Users can insert their own events` - INSERT WITH CHECK auth.uid() = user_id
+- `Users can update their own events` - UPDATE WHERE auth.uid() = user_id
+- `Users can delete their own events` - DELETE WHERE auth.uid() = user_id
+
+**Important Notes:**
+- `end_date` is **optional** (NULL indicates open-ended event)
+- Date range constraint: `end_date` must be >= `start_date` when provided
+- Deleting an event sets `event_id` to NULL on linked transactions (preserves transaction history)
+- Events are useful for tracking expenses/income for specific projects, trips, or time periods
+- Smart filtering in UI shows only events matching transaction dates
+
+---
+
 ## Database Triggers
 
 ### `update_updated_at_column()`
@@ -192,6 +237,7 @@ Automatically updates the `updated_at` timestamp on row updates.
 - `sub_categories` table
 - `transactions` table
 - `budgets` table
+- `events` table
 
 **Trigger Definition:**
 ```sql
@@ -232,6 +278,33 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
+### `validate_transaction_event()`
+
+Validates that an event belongs to the same user before insert/update.
+
+**Applied to:**
+- `transactions` table (BEFORE INSERT OR UPDATE)
+
+**Trigger Definition:**
+```sql
+CREATE OR REPLACE FUNCTION validate_transaction_event()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.event_id IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1
+      FROM events
+      WHERE id = NEW.event_id
+        AND user_id = NEW.user_id
+    ) THEN
+      RAISE EXCEPTION 'Event must belong to the same user';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
 ---
 
 ## Common Query Patterns
@@ -244,7 +317,8 @@ const { data, error } = await supabase
   .select(`
     *,
     categories (*),
-    sub_categories (*)
+    sub_categories (*),
+    events (*)
   `)
   .order('date', { ascending: false })
 ```
@@ -260,7 +334,8 @@ const { data, error } = await supabase
     amount: 100.50,
     description: 'Grocery shopping',
     date: '2024-01-15',
-    type: 'expense'
+    type: 'expense',
+    event_id: eventId || null // Optional - link to event
   })
 ```
 
@@ -283,9 +358,42 @@ const { data, error } = await supabase
   .eq('month', '2024-01')
 ```
 
+### Fetching Event Transactions
+```typescript
+// Get all transactions for a specific event
+const { data, error } = await supabase
+  .from('transactions')
+  .select(`
+    *,
+    categories (*),
+    sub_categories (*)
+  `)
+  .eq('event_id', eventId)
+  .order('date', { ascending: false })
+```
+
+### Bulk Linking Transactions to Event
+```typescript
+// Update multiple transactions to link them to an event
+const { error } = await supabase
+  .from('transactions')
+  .update({ event_id: eventId })
+  .in('id', transactionIds)
+```
+
 ---
 
 ## Migration History
+
+### Version 1.2.0 (2025-11-04)
+- Added `events` table for grouping transactions by events
+- Added `event_id` column to `transactions` table
+- Implemented RLS policies for events
+- Added `validate_transaction_event()` trigger for data integrity
+- Created indexes on `event_id` and event date ranges for performance
+- Updated query patterns to include events
+- Added bulk transaction linking functionality
+- Implemented smart event filtering by transaction date in UI
 
 ### Version 1.1.0 (2025-11-03)
 - Added `sub_categories` table for granular transaction classification
@@ -321,5 +429,7 @@ When modifying the schema:
 - [SUPABASE_SETUP.md](../SUPABASE_SETUP.md) - Full Supabase setup instructions with SQL scripts
 - [docs/sub-categories-supabase.md](sub-categories-supabase.md) - Sub-categories migration guide with SQL scripts
 - [docs/sub-categories.md](sub-categories.md) - Sub-categories feature planning and implementation guide
+- [docs/events-supabase.md](events-supabase.md) - Events migration guide with SQL scripts
+- [docs/events.md](events.md) - Events feature planning and implementation guide
 - [src/types/database.ts](../src/types/database.ts) - TypeScript type definitions
 - [CLAUDE.md](../CLAUDE.md) - Development guidelines and architecture

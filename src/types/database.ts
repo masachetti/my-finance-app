@@ -70,6 +70,7 @@ export interface Database {
           date: string
           type: 'income' | 'expense'
           recurrent_transaction_id: string | null
+          event_id: string | null
           created_at: string
           updated_at: string
         }
@@ -83,6 +84,7 @@ export interface Database {
           date: string
           type: 'income' | 'expense'
           recurrent_transaction_id?: string | null
+          event_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -96,6 +98,7 @@ export interface Database {
           date?: string
           type?: 'income' | 'expense'
           recurrent_transaction_id?: string | null
+          event_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -125,6 +128,44 @@ export interface Database {
           category_id?: string
           amount?: number
           month?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      events: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          start_date: string
+          end_date: string | null
+          color: string
+          icon: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          start_date: string
+          end_date?: string | null
+          color?: string
+          icon?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          start_date?: string
+          end_date?: string | null
+          color?: string
+          icon?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -247,6 +288,9 @@ export interface Database {
   }
 }
 
+export type Transaction = Database['public']['Tables']['transactions']['Row']
+
+
 // Helper types for sub-categories
 export type SubCategory = Database['public']['Tables']['sub_categories']['Row']
 export type SubCategoryInsert = Database['public']['Tables']['sub_categories']['Insert']
@@ -297,4 +341,36 @@ export interface TransactionWithDetails
   extends Database['public']['Tables']['transactions']['Row'] {
   categories?: Database['public']['Tables']['categories']['Row']
   sub_categories?: SubCategory | null
+}
+
+// Helper types for events
+export type Event = Database['public']['Tables']['events']['Row']
+export type EventInsert = Database['public']['Tables']['events']['Insert']
+export type EventUpdate = Database['public']['Tables']['events']['Update']
+
+// Helper type for event with stats
+export interface EventWithStats extends Event {
+  transaction_count?: number
+  total_income?: number
+  total_expenses?: number
+  balance?: number
+}
+
+// Helper type for transaction with event
+export interface TransactionWithEvent extends Transaction {
+  events?: Event | null
+  categories?: Database['public']['Tables']['categories']['Row']
+  sub_categories?: SubCategory | null
+}
+
+// Event stats interface
+export interface EventStats {
+  totalIncome: number
+  totalExpenses: number
+  balance: number
+  transactionCount: number
+  categoryBreakdown: {
+    category: Database['public']['Tables']['categories']['Row']
+    total: number
+  }[]
 }

@@ -6,7 +6,9 @@ import Modal from '@/components/common/Modal.vue'
 import TransactionForm from '@/components/forms/TransactionForm.vue'
 import StatCard from '@/components/common/StatCard.vue'
 import TransactionAccordionRow from '@/components/common/TransactionAccordionRow.vue'
+import BulkEventLinkModal from '@/components/events/BulkEventLinkModal.vue'
 import { useTransactionsStore } from '@/stores/transactions'
+import { useEventsStore } from '@/stores/events'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import type { Database } from '@/types/database'
 import type { TransactionWithCategory } from '@/stores/transactions'
@@ -16,25 +18,58 @@ type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 
 const { t } = useI18n()
 const transactionsStore = useTransactionsStore()
+const eventsStore = useEventsStore()
+const route = useRoute()
 
 // Modal state
 const showModal = ref(false)
 const editingTransaction = ref<TransactionWithCategory | null>(null)
 const showDeleteConfirm = ref(false)
 const transactionToDelete = ref<TransactionWithCategory | null>(null)
+const showBulkLinkModal = ref(false)
 
 // Filter state
 const filterType = ref<'all' | 'income' | 'expense'>('all')
+const filterEventId = ref<string | null>(null)
 
-// Load transactions on mount
+// Bulk selection state
+const bulkSelectMode = ref(false)
+const selectedTransactionIds = ref<Set<string>>(new Set())
+
+// Pre-fill event ID from query params
+const prefilledEventId = ref<string | null>(null)
+
+// Load transactions and events on mount
 onMounted(async () => {
-  await transactionsStore.fetchTransactions()
+  await Promise.all([
+    transactionsStore.fetchTransactions(),
+    eventsStore.fetchEvents()
+  ])
+
+  // Check for eventId query param
+  const eventIdParam = route.query.eventId
+  if (eventIdParam && typeof eventIdParam === 'string') {
+    prefilledEventId.value = eventIdParam
+    // Auto-open modal if eventId is present
+    handleAddTransaction()
+  }
 })
 
 // Filtered transactions
 const filteredTransactions = computed(() => {
-  if (filterType.value === 'all') return transactionsStore.transactions
-  return transactionsStore.transactions.filter((t) => t.type === filterType.value)
+  let filtered = transactionsStore.transactions
+
+  // Filter by type
+  if (filterType.value !== 'all') {
+    filtered = filtered.filter((t) => t.type === filterType.value)
+  }
+
+  // Filter by event
+  if (filterEventId.value) {
+    filtered = filtered.filter((t) => t.event_id === filterEventId.value)
+  }
+
+  return filtered
 })
 
 // Modal handlers
@@ -51,6 +86,7 @@ function handleEditTransaction(transaction: TransactionWithCategory) {
 function closeModal() {
   showModal.value = false
   editingTransaction.value = null
+  prefilledEventId.value = null
 }
 
 // CRUD operations
@@ -104,16 +140,101 @@ const submitLabel = computed(() => {
 function getTypeBadgeColor(type: 'income' | 'expense'): string {
   return type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
 }
+
+// Bulk selection handlers
+function toggleBulkSelectMode() {
+  bulkSelectMode.value = !bulkSelectMode.value
+  if (!bulkSelectMode.value) {
+    selectedTransactionIds.value.clear()
+  }
+}
+
+function toggleTransactionSelection(transactionId: string) {
+  if (selectedTransactionIds.value.has(transactionId)) {
+    selectedTransactionIds.value.delete(transactionId)
+  } else {
+    selectedTransactionIds.value.add(transactionId)
+  }
+}
+
+function selectAllTransactions() {
+  filteredTransactions.value.forEach((t) => selectedTransactionIds.value.add(t.id))
+}
+
+function deselectAllTransactions() {
+  selectedTransactionIds.value.clear()
+}
+
+function handleOpenBulkLinkModal() {
+  if (selectedTransactionIds.value.size === 0) return
+  showBulkLinkModal.value = true
+}
+
+function handleBulkLinkSuccess() {
+  showBulkLinkModal.value = false
+  selectedTransactionIds.value.clear()
+  bulkSelectMode.value = false
+  // Refresh transactions to get updated event links
+  transactionsStore.fetchTransactions()
+}
+
+const selectedTransactions = computed(() => {
+  return filteredTransactions.value.filter((t) => selectedTransactionIds.value.has(t.id))
+})
 </script>
 
 <template>
   <AppLayout>
-    <PageHeader
-      :title="t('transactions.title')"
-      :subtitle="t('transactions.subtitle')"
-      :action-label="t('transactions.addTransaction')"
-      @action="handleAddTransaction"
-    />
+    <!-- Page Header with Bulk Actions -->
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ t('transactions.title') }}</h1>
+          <p class="text-gray-600 mt-1">{{ t('transactions.subtitle') }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            v-if="!bulkSelectMode"
+            @click="toggleBulkSelectMode"
+            class="btn btn-secondary whitespace-nowrap"
+          >
+            {{ t('transactions.bulkLink') }}
+          </button>
+          <template v-else>
+            <button
+              @click="selectAllTransactions"
+              class="btn btn-secondary whitespace-nowrap text-sm"
+            >
+              {{ t('transactions.selectAll') }}
+            </button>
+            <button
+              @click="deselectAllTransactions"
+              class="btn btn-secondary whitespace-nowrap text-sm"
+            >
+              {{ t('transactions.deselectAll') }}
+            </button>
+            <button
+              @click="handleOpenBulkLinkModal"
+              class="btn btn-primary whitespace-nowrap"
+              :disabled="selectedTransactionIds.size === 0"
+              :class="{ 'opacity-50 cursor-not-allowed': selectedTransactionIds.size === 0 }"
+            >
+              {{ t('events.actions.linkTransactions') }} ({{ selectedTransactionIds.size }})
+            </button>
+            <button @click="toggleBulkSelectMode" class="btn btn-secondary whitespace-nowrap">
+              {{ t('common.cancel') }}
+            </button>
+          </template>
+          <button
+            v-if="!bulkSelectMode"
+            @click="handleAddTransaction"
+            class="btn btn-primary whitespace-nowrap"
+          >
+            {{ t('transactions.addTransaction') }}
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Summary Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -173,6 +294,24 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
       </div>
     </div>
 
+    <!-- Event Filter -->
+    <div v-if="eventsStore.events.length > 0" class="mb-6">
+      <label for="event-filter" class="block text-sm font-medium text-gray-700 mb-2">
+        {{ t('transactions.filterByEvent') }}
+      </label>
+      <select
+        id="event-filter"
+        v-model="filterEventId"
+        class="input max-w-md"
+      >
+        <option :value="null">{{ t('transactions.allEvents') }}</option>
+        <option v-for="event in eventsStore.events" :key="event.id" :value="event.id">
+          <span v-if="event.icon">{{ event.icon }}</span>
+          {{ event.name }}
+        </option>
+      </select>
+    </div>
+
     <!-- Loading State -->
     <div v-if="transactionsStore.loading" class="text-center py-12">
       <p class="text-gray-500">{{ t('transactions.loadingTransactions') }}</p>
@@ -216,6 +355,9 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
           <table class="w-full">
             <thead>
               <tr class="border-b">
+                <th v-if="bulkSelectMode" class="text-left py-3 px-4 w-12">
+                  <!-- Select all checkbox column -->
+                </th>
                 <th class="text-left py-3 px-4 font-semibold text-gray-900">
                   {{ t('transactions.date') }}
                 </th>
@@ -242,6 +384,16 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                 :key="transaction.id"
                 class="border-b hover:bg-gray-50 transition-colors"
               >
+                <!-- Checkbox (bulk select mode) -->
+                <td v-if="bulkSelectMode" class="py-4 px-4">
+                  <input
+                    type="checkbox"
+                    :checked="selectedTransactionIds.has(transaction.id)"
+                    @change="toggleTransactionSelection(transaction.id)"
+                    class="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                </td>
+
                 <!-- Date -->
                 <td class="py-4 px-4 text-gray-900">
                   {{ formatDate(transaction.date) }}
@@ -267,6 +419,20 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                       <span v-if="transaction.sub_categories" class="text-xs text-gray-500">
                         → {{ transaction.sub_categories.name }}
                       </span>
+                      <!-- Event Badge -->
+                      <div v-if="transaction.events" class="mt-1">
+                        <router-link
+                          :to="{ name: 'event-details', params: { id: transaction.event_id } }"
+                          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-opacity hover:opacity-80"
+                          :style="{
+                            backgroundColor: transaction.events.color + '20',
+                            color: transaction.events.color,
+                          }"
+                        >
+                          <span v-if="transaction.events.icon">{{ transaction.events.icon }}</span>
+                          <span>{{ transaction.events.name }}</span>
+                        </router-link>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -353,8 +519,11 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
                 description: editingTransaction.description,
                 date: editingTransaction.date,
                 type: editingTransaction.type,
+                event_id: editingTransaction.event_id,
               }
-            : undefined
+            : prefilledEventId
+              ? { event_id: prefilledEventId }
+              : undefined
         "
         :submit-label="submitLabel"
         @submit="handleSubmit"
@@ -392,5 +561,12 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
         </div>
       </div>
     </Modal>
+
+    <!-- Bulk Event Link Modal -->
+    <BulkEventLinkModal
+      v-model="showBulkLinkModal"
+      :transactions="selectedTransactions"
+      @success="handleBulkLinkSuccess"
+    />
   </AppLayout>
 </template>

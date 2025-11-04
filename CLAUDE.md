@@ -357,6 +357,7 @@ onUnmounted(() => {
 - **Maintain RLS policies** on all tables with `user_id` filtering for security
 - Do not co-author claude on commits
 - Use R$ for money
-- Use pt-BR locale for dates
+- ALWAYS use pt-BR locale for dates
 - Always use i18n and create both pt-BR and en strings
 - Always style components using mobile-first approach
+- ALWAYS use the DatePicker component present on components/common

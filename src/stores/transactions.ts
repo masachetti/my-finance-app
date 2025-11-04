@@ -8,11 +8,13 @@ type Transaction = Database['public']['Tables']['transactions']['Row']
 type TransactionInsert = Database['public']['Tables']['transactions']['Insert']
 type TransactionUpdate = Database['public']['Tables']['transactions']['Update']
 type Category = Database['public']['Tables']['categories']['Row']
+type Event = Database['public']['Tables']['events']['Row']
 
-// Extended transaction with category and sub-category details
+// Extended transaction with category, sub-category, and event details
 export interface TransactionWithCategory extends Transaction {
   categories: Category | null
   sub_categories?: SubCategory | null
+  events?: Event | null
 }
 
 export const useTransactionsStore = defineStore('transactions', () => {
@@ -61,7 +63,8 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .select(`
           *,
           categories (*),
-          sub_categories (*)
+          sub_categories (*),
+          events (*)
         `)
         .order('date', { ascending: false })
 
@@ -84,7 +87,12 @@ export const useTransactionsStore = defineStore('transactions', () => {
     try {
       const { data, error: fetchError } = await supabase
         .from('transactions')
-        .select('*, categories(*)')
+        .select(`
+          *,
+          categories (*),
+          sub_categories (*),
+          events (*)
+        `)
         .gte('date', startDate)
         .lte('date', endDate)
         .order('date', { ascending: false })
@@ -117,7 +125,12 @@ export const useTransactionsStore = defineStore('transactions', () => {
           ...transactionData,
           user_id: authStore.user.id
         })
-        .select('*, categories(*)')
+        .select(`
+          *,
+          categories (*),
+          sub_categories (*),
+          events (*)
+        `)
         .single()
 
       if (insertError) throw insertError
@@ -146,7 +159,12 @@ export const useTransactionsStore = defineStore('transactions', () => {
         .from('transactions')
         .update(updates)
         .eq('id', id)
-        .select('*, categories(*)')
+        .select(`
+          *,
+          categories (*),
+          sub_categories (*),
+          events (*)
+        `)
         .single()
 
       if (updateError) throw updateError

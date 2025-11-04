@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useCategoriesStore } from '@/stores/categories'
-import { format } from 'date-fns'
+import { useEventsStore } from '@/stores/events'
+import { format, parseISO, isWithinInterval } from 'date-fns'
 import type { Database } from '@/types/database'
 import { useI18n } from '@/composables/useI18n'
 import SubCategorySelect from './SubCategorySelect.vue'
@@ -15,6 +16,7 @@ interface Props {
     description?: string | null
     date?: string
     type?: 'income' | 'expense'
+    event_id?: string | null
   }
   submitLabel?: string
 }
@@ -30,11 +32,15 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const categoriesStore = useCategoriesStore()
+const eventsStore = useEventsStore()
 
-// Initialize categories
+// Initialize categories and events
 onMounted(async () => {
   if (categoriesStore.categories.length === 0) {
     await categoriesStore.fetchCategories()
+  }
+  if (eventsStore.events.length === 0) {
+    await eventsStore.fetchEvents()
   }
 })
 
@@ -46,6 +52,7 @@ const formData = reactive({
   description: props.initialData?.description || '',
   date: props.initialData?.date || format(new Date(), 'yyyy-MM-dd'),
   type: props.initialData?.type || ('expense' as 'income' | 'expense'),
+  event_id: props.initialData?.event_id || (null as string | null),
 })
 
 // Validation
@@ -62,6 +69,31 @@ const availableCategories = computed(() => {
     : categoriesStore.expenseCategories
 })
 
+// Filter events based on transaction date (smart filtering)
+const availableEvents = computed(() => {
+  if (!formData.date) return eventsStore.events
+
+  try {
+    const transactionDate = parseISO(formData.date)
+
+    return eventsStore.events.filter((event) => {
+      const startDate = parseISO(event.start_date)
+
+      // If event has no end date (open-ended), only check if transaction is after start
+      if (!event.end_date) {
+        return transactionDate >= startDate
+      }
+
+      // If event has end date, check if transaction is within range
+      const endDate = parseISO(event.end_date)
+      return isWithinInterval(transactionDate, { start: startDate, end: endDate })
+    })
+  } catch {
+    // If date parsing fails, return all events
+    return eventsStore.events
+  }
+})
+
 // Watch type changes and clear category if not valid
 watch(
   () => formData.type,
@@ -69,6 +101,19 @@ watch(
     const selectedCategory = categoriesStore.getCategoryById(formData.category_id)
     if (selectedCategory && selectedCategory.type !== formData.type) {
       formData.category_id = ''
+    }
+  }
+)
+
+// Watch date changes and clear event if not valid
+watch(
+  () => formData.date,
+  () => {
+    if (formData.event_id) {
+      const selectedEvent = eventsStore.events.find((e) => e.id === formData.event_id)
+      if (selectedEvent && !availableEvents.value.find((e) => e.id === formData.event_id)) {
+        formData.event_id = null
+      }
     }
   }
 )
@@ -112,6 +157,7 @@ function handleSubmit() {
     description: formData.description.trim() || null,
     date: formData.date,
     type: formData.type,
+    event_id: formData.event_id || null,
   })
 }
 
@@ -176,6 +222,28 @@ function handleCancel() {
 
     <!-- Sub-Category Selection -->
     <SubCategorySelect v-model="formData.sub_category_id" :category-id="formData.category_id" />
+
+    <!-- Event Selection -->
+    <div>
+      <label for="event" class="block text-sm font-medium text-gray-700 mb-1">
+        {{ t('forms.transaction.event') }}
+      </label>
+      <select id="event" v-model="formData.event_id" class="input w-full">
+        <option :value="null">{{ t('forms.transaction.noEvent') }}</option>
+        <option v-for="event in availableEvents" :key="event.id" :value="event.id">
+          <span v-if="event.icon">{{ event.icon }}</span>
+          {{ event.name }}
+          <span v-if="event.end_date">
+            ({{ format(parseISO(event.start_date), 'dd/MM/yy') }} -
+            {{ format(parseISO(event.end_date), 'dd/MM/yy') }})
+          </span>
+          <span v-else> ({{ t('events.openEnded') }}) </span>
+        </option>
+      </select>
+      <p v-if="availableEvents.length === 0" class="mt-1 text-sm text-amber-600">
+        {{ t('forms.transaction.noEventsAvailable') }}
+      </p>
+    </div>
 
     <!-- Amount -->
     <div>

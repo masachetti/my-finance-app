@@ -7,6 +7,7 @@ import StatCard from '@/components/common/StatCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import PendingApprovals from '@/components/dashboard/PendingApprovals.vue'
 import UpcomingRecurring from '@/components/dashboard/UpcomingRecurring.vue'
+import ActiveEventsWidget from '@/components/dashboard/ActiveEventsWidget.vue'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
 import currency from 'currency.js'
@@ -97,6 +98,11 @@ function getTypeBadgeColor(type: 'income' | 'expense'): string {
 
     <!-- Upcoming Recurring Transactions -->
     <UpcomingRecurring />
+
+    <!-- Active Events Widget -->
+    <div class="mt-8">
+      <ActiveEventsWidget />
+    </div>
 
     <div class="card mt-8">
       <h3 class="text-lg font-semibold mb-4">{{ t('dashboard.recentTransactions') }}</h3>
